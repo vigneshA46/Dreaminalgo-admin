@@ -10,25 +10,40 @@ import {
   IconMenu2,
   IconCoinRupee,
   IconBook,
+  IconUsers,
+  IconChartDots,
+  IconBuildingBank,
+  IconActivity,
+  IconReportAnalytics,
+  IconBook2,
+  IconBell,
+  IconSettings,
+  IconCodePlus,
+  IconWaveSine,
+  IconCurrencyRupee,
+  IconSchool,
 } from "@tabler/icons-react";
 import classes from "./Sidebar.module.css";
 import logowhite from "../../assets/logowhite.png"
 import logo from "../../assets/logo.jpeg"
+import logobgrem from "../../assets/logobgrem.png"
 import { useState } from "react";
 
 
 const menu = [
   { label: "Dashboard", icon: IconGauge },
-  { label: "users", icon: IconAntenna },
-  { label: "stratergies", icon: IconChartLine },
-  { label: "subscriptions", icon: IconCreditCard },
-  { label: "broker", icon: IconFileText },
-  { label: "trading activity", icon: IconPlus },
-  { label: "reports", icon: IconCoinRupee},
-  { label: "education", icon: IconBook},
-  { label: "notifications", icon: IconBook},
-  { label: "settings", icon: IconBook},
-
+  { label: "Users", icon: IconUsers },
+  { label: "Strategies", icon: IconChartDots },
+  { label: "Create Strategy", icon: IconCodePlus },
+  { label: "Trading Signals", icon: IconWaveSine },
+  { label: "Plans & Pricing", icon: IconCurrencyRupee },
+  { label: "Subscriptions", icon: IconCreditCard },
+  { label: "Broker", icon: IconBuildingBank },
+  { label: "Trading Activity", icon: IconActivity },
+  { label: "Reports", icon: IconReportAnalytics },
+  { label: "Tutorials", icon: IconSchool },
+  { label: "Notifications", icon: IconBell },
+  { label: "Settings", icon: IconSettings },
 ];
 
 export default function Sidebar({ active, onSelect, mobileOpen, setMobileOpen, collapsed, setCollapsed }) {
@@ -66,7 +81,7 @@ const toggleSidebar = () => {
         gap="sm"
         direction={collapsed ? "column" : "row"}
       >
-        <Image src={logo} alt="loading logo" w="2.8rem" radius="1rem" />
+        <Image src={logobgrem} bg={"#000"} alt="loading logo" w="2.8rem" radius="1rem" />
 
         <ActionIcon onClick={toggleSidebar} variant="subtle" className={classes.hamburgerInside}>
   <IconMenu2 size={22} color="black" />

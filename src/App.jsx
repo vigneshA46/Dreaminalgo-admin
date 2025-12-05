@@ -14,6 +14,11 @@ import Reports from './components/Reports';
 import Education from './components/Education';
 import Notifications from './components/Notifications';
 import Settings from './components/Settings';
+import Home from './modules/Home';
+import Createstratergy from './components/Createstratergy';
+import Tradingsignal from './components/Tradingsignal';
+import Planspricing from './components/Planspricing';
+import Tutorials from './components/Tutorials';
 
 function App() {
 
@@ -21,7 +26,7 @@ function App() {
     <MantineProvider>
       <Router>
         <Routes>
-          <Route path='/' >
+          <Route path='/' element={<Home/>}>
           <Route index element={<Dashboard/>} />
           <Route path='users' element={<Users/>} />
           <Route path='stratergies' element={<Strategies/>} />
@@ -32,6 +37,10 @@ function App() {
           <Route path='education' element={<Education/>} />
           <Route path='notifications' element={<Notifications/>} />
           <Route path='settings' element={<Settings/>} />
+          <Route path='create-stratergy' element={<Createstratergy/>} />
+          <Route path='trading-signal' element={<Tradingsignal/>} />
+          <Route path='plans-pricing' element={<Planspricing/>} />
+          <Route path='tutorials' element={<Tutorials/>} />
           </Route>
         </Routes>
       </Router>

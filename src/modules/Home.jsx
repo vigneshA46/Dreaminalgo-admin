@@ -1,8 +1,8 @@
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
-import Sidebar from "../components/sidebar/Sidebar.jsx";
 import { useState } from "react";
 import { ActionIcon } from "@mantine/core";
 import { IconMenu2 } from "@tabler/icons-react";
+import Sidebar from '../components/sidebar/Sidebar.jsx'
 
 export default function Home() {
   const navigate = useNavigate();
@@ -28,11 +28,14 @@ export default function Home() {
     "/",
     "/users",
     "/stratergies",
+    "/create-stratergy",
+    "/trading-signal",
+    "/plans-pricing",
     "/subscriptions",
     "/broker",
     "/trading-activity",
     "/reports",
-   "/education",
+   "/tutorials",
    "/notifications",
    "/settings"
   ];
