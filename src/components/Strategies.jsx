@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { MantineProvider, Box, Container, Group, Button, TextInput, Radio, Text, Card, Badge, Anchor, Grid, Stack } from '@mantine/core';
 import { IconSearch, IconCurrencyRupee } from '@tabler/icons-react';
 import { apiRequest } from './utils/api';
+import { Modal, Switch } from "@mantine/core";
+
 
 
 const Stratergies = () => {
@@ -10,6 +12,15 @@ const Stratergies = () => {
   const [selectedSort, setSelectedSort] = useState('');
   const [strategies , setstrategies] = useState([])
   const [mystartergieslist , setmystartergieslist] = useState([]);
+  const [opened, setOpened] = useState(false);
+const [selectedStrategy, setSelectedStrategy] = useState(null);
+const [form, setForm] = useState({
+  name: "",
+  description: "",
+  capitalRequired: "",
+  tokensRequired: "",
+  isPaid: false
+});
 
   useEffect(()=>{
     const fetchuserstratergies = async ()=>{
@@ -116,7 +127,6 @@ const Stratergies = () => {
   
   useEffect(()=>{
     fetchStratergy();
-    fetmystartergies();
   },[])
 
   
@@ -281,16 +291,24 @@ const Stratergies = () => {
             <Grid.Col span={{ base: 12, md: 9 }}>
               {strategies.map((strategy) => (
                 <Card
-                  key={strategy.id}
-                  shadow="sm"
-                  padding="xl"
-                  radius="md"
-                  mb="lg"
-                  style={{
-                    backgroundColor: 'white',
-                    border: '1px solid #e9ecef',
-                  }}
-                >
+  key={strategy.id}
+  onClick={() => {
+    setSelectedStrategy(strategy);
+    setForm({
+      name: strategy.name,
+      description: strategy.description,
+      capitalRequired: strategy.capital_required,
+      tokensRequired: strategy.tokens_required,
+      isPaid: strategy.is_paid
+    });
+    setOpened(true);
+  }}
+  style={{
+    cursor: "pointer",
+    backgroundColor: "white",
+    border: "1px solid #e9ecef"
+  }}
+>
                   <Group justify="space-between" align="flex-start" mb="md">
                     <Box style={{ flex: 1 }}>
                       <Text size="lg" fw={600} c="#212529" mb={8}>
@@ -307,20 +325,7 @@ const Stratergies = () => {
                         </Anchor>
                       </Text>
                     </Box>
-                    <Badge
-                      size="lg"
-                      radius="md"
-                      style={{
-                        backgroundColor: '#d3f9d8',
-                        color: '#2b8a3e',
-                        fontWeight: 600,
-                        textTransform: 'none',
-                        padding: '8px 16px',
-                        fontSize: '13px',
-                      }}
-                    >
-                      Subscribed
-                    </Badge>
+                    
                   </Group>
 
                   <Group justify="space-between" align="center">
@@ -346,20 +351,7 @@ const Stratergies = () => {
                       </Box> */}
                     </Group>
 
-                    <Button
-                      size="md"
-                      radius="md"
-                      variant="outline"
-                      style={{
-                        borderColor: '#dc3545',
-                        color: '#dc3545',
-                        fontWeight: 600,
-                        paddingLeft: '32px',
-                        paddingRight: '32px',
-                      }}
-                    >
-                      DEPLOY
-                    </Button>
+                    
                   </Group>
                 </Card> 
               ))}
@@ -385,21 +377,78 @@ const Stratergies = () => {
             )
           }
 
-          
-
-          {/* Footer */}
-{/*           <Group justify="space-between" mt="xl" pt="xl" style={{ borderTop: '1px solid #e9ecef' }}>
-            <Text size="sm" c="#495057">
-              Contact Us
-            </Text>
-            <Text size="sm" c="#495057">
-              Terms and Conditions
-            </Text>
-            <Text size="sm" c="#495057">
-              Privacy policy
-            </Text>
-          </Group> */}
+        
         </Container>
+        <Modal
+  opened={opened}
+  onClose={() => setOpened(false)}
+  title="Update Strategy"
+  centered
+>
+  <Stack>
+    <TextInput
+      label="Name"
+      value={form.name}
+      onChange={(e) => setForm({ ...form, name: e.target.value })}
+    />
+
+    <TextInput
+      label="Description"
+      value={form.description}
+      onChange={(e) =>
+        setForm({ ...form, description: e.target.value })
+      }
+    />
+
+    <TextInput
+      label="Capital Required"
+      value={form.capitalRequired}
+      onChange={(e) =>
+        setForm({ ...form, capitalRequired: e.target.value })
+      }
+    />
+
+    <TextInput
+      label="Tokens Required"
+      value={form.tokensRequired}
+      onChange={(e) =>
+        setForm({ ...form, tokensRequired: e.target.value })
+      }
+    />
+
+    <Switch
+      label="Paid Strategy"
+      checked={form.isPaid}
+      onChange={(e) =>
+        setForm({ ...form, isPaid: e.currentTarget.checked })
+      }
+    />
+
+    <Button
+      fullWidth
+      style={{ backgroundColor: "black", color: "white" }}
+      onClick={async () => {
+        try {
+          await apiRequest(
+            "PATCH",
+            `/api/stratergy/${selectedStrategy.id}`,
+            form
+          );
+
+          setOpened(false);
+
+          // 🔥 Refresh list
+          fetchStratergy();
+
+        } catch (err) {
+          console.log(err);
+        }
+      }}
+    >
+      Update Strategy
+    </Button>
+  </Stack>
+</Modal>
       </Box>
   )
 }
