@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import './App.css'
 import '@mantine/core/styles.css';
 
 import { MantineProvider, Text } from '@mantine/core';
@@ -19,6 +18,7 @@ import Createstratergy from './components/Createstratergy';
 import Tradingsignal from './components/Tradingsignal';
 import Planspricing from './components/Planspricing';
 import Tutorials from './components/Tutorials';
+import Login from './components/Login';
 
 function App() {
 
@@ -26,7 +26,16 @@ function App() {
     <MantineProvider>
       <Router>
         <Routes>
+
+          <Route
+            path="/auth/login"
+            element={
+                <Login />
+            }
+          />
           <Route path='/' element={<Home/>}>
+
+
           <Route index element={<Dashboard/>} />
           <Route path='users' element={<Users/>} />
           <Route path='stratergies' element={<Strategies/>} />
