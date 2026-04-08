@@ -18,7 +18,7 @@ const api = axios.create({
 
 const refreshAccessToken = async () => {
   try {
-    await api.post('/api/admin/auth/refresh');
+    await api.post('/api/adminauth/refresh');
     return true;
   } catch (err) {
     return false;

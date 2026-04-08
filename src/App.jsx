@@ -19,6 +19,7 @@ import Tradingsignal from './components/Tradingsignal';
 import Planspricing from './components/Planspricing';
 import Tutorials from './components/Tutorials';
 import Login from './components/Login';
+import Createtradersignal from './components/Createtradersignal';
 
 function App() {
 
@@ -47,9 +48,11 @@ function App() {
           <Route path='notifications' element={<Notifications/>} />
           <Route path='settings' element={<Settings/>} />
           <Route path='create-stratergy' element={<Createstratergy/>} />
-          <Route path='trading-signal' element={<Tradingsignal/>} />
+          <Route path='create-signal' element={<Tradingsignal/>} />
+          <Route path='trading-signal' element={<Createtradersignal/>} />
           <Route path='plans-pricing' element={<Planspricing/>} />
           <Route path='tutorials' element={<Tutorials/>} />
+          
           </Route>
         </Routes>
       </Router>

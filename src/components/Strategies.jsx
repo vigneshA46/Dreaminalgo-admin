@@ -14,6 +14,8 @@ const Stratergies = () => {
   const [mystartergieslist , setmystartergieslist] = useState([]);
   const [opened, setOpened] = useState(false);
 const [selectedStrategy, setSelectedStrategy] = useState(null);
+const [useropened, setuserOpened] = useState(false);
+const [userselectedStrategy, setuserSelectedStrategy] = useState(null);
 const [form, setForm] = useState({
   name: "",
   description: "",
@@ -21,6 +23,34 @@ const [form, setForm] = useState({
   tokensRequired: "",
   isPaid: false
 });
+
+const handleView = (strategy) => {
+  setuserSelectedStrategy(strategy);
+  setuserOpened(true);
+};
+
+const handleDelete = async (id) => {
+  const confirmDelete = window.confirm("Are you sure you want to delete this strategy?");
+
+  if (!confirmDelete) return;
+
+  try {
+    await deleteuserstratergy(id);
+    // refresh your list here
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+
+const deleteuserstratergy  = async (id)=>{
+  try{
+    const res =await apiRequest('DELETE',`/api/createstartergy/${id}`)
+    console.log(res)
+  }catch(err){
+    console.log(err)
+  }
+}
 
   useEffect(()=>{
     const fetchuserstratergies = async ()=>{
@@ -40,7 +70,7 @@ const [form, setForm] = useState({
     startergyname,
     timestamp,
     description,
-    onDeploy,
+    onDelete,
     onView
   }) => {
     return (
@@ -87,17 +117,11 @@ const [form, setForm] = useState({
             View
           </Button>
           <Button
-          radius={"0.4rem"}
-            styles={{
-              root: {
-                backgroundColor: "#000",
-                color: "#fff",
-              },
-            }}
-            onClick={onDeploy}
-          >
-            Deploy
-          </Button>
+          color="black"
+          onClick={onDelete}
+        >
+          Delete
+        </Button>
         </Group>
       </Card>
     );
@@ -114,16 +138,7 @@ const [form, setForm] = useState({
       }
     }
 
-    const fetmystartergies = async () =>{
-      try {
-        const strategies = await apiRequest("POST","/api/createstartergy/user/userid")
-        console.log(strategies)
-        setmystartergieslist(strategies);
-      }
-      catch(err){
-        console.log(err)
-      }
-    }
+
   
   useEffect(()=>{
     fetchStratergy();
@@ -291,6 +306,7 @@ const [form, setForm] = useState({
             <Grid.Col span={{ base: 12, md: 9 }}>
               {strategies.map((strategy) => (
                 <Card
+                my={'1rem'}
   key={strategy.id}
   onClick={() => {
     setSelectedStrategy(strategy);
@@ -365,12 +381,12 @@ const [form, setForm] = useState({
                         span={{ base: 12, sm: 6, md: 4, lg: 6 }}
                       >
                         <SingleTraderSignal
-                          startergyname={signal.startergy_name}
-                          description={signal.description}
-                          timestamp={signal.created_at}
-                          onView={() => console.log("view", signal.id)}
-                          onDeploy={() => console.log("deploy", signal.id)}
-                        />
+                        startergyname={signal.startergy_name}
+                        description={signal.description}
+                        timestamp={signal.created_at}
+                        onView={() => handleView(signal)}
+                        onDelete={() => handleDelete(signal.id)}
+                        />    
                       </Grid.Col>
                     ))}
                   </Grid>
@@ -448,6 +464,47 @@ const [form, setForm] = useState({
       Update Strategy
     </Button>
   </Stack>
+</Modal>
+
+<Modal
+  opened={useropened}
+  onClose={() => setuserOpened(false)}
+  title="Strategy Details"
+  size="lg"
+>
+  {userselectedStrategy && (
+    <Stack>
+
+      <Text fw={600}>Name:</Text>
+      <Text>{userselectedStrategy.startergy_name}</Text>
+
+      <Text fw={600}>Description:</Text>
+      <Text>{userselectedStrategy.description || "N/A"}</Text>
+
+      <Text fw={600}>Created At:</Text>
+      <Text>{userselectedStrategy.created_at}</Text>
+
+      {/* ENTRY SETTINGS */}
+      <Text fw={700} mt="md">Entry Settings</Text>
+      <pre style={{ background: "#f8f9fa", padding: "10px" }}>
+        {JSON.stringify(userselectedStrategy.entry_settings, null, 2)}
+      </pre>
+
+      {/* LEGS */}
+      <Text fw={700} mt="md">Legs</Text>
+
+      {userselectedStrategy.config_json?.legs?.map((leg, index) => (
+        <Card key={leg.id} withBorder mt="sm">
+          <Text fw={600}>Leg {index + 1}</Text>
+
+          <pre style={{ fontSize: "12px" }}>
+            {JSON.stringify(leg, null, 2)}
+          </pre>
+        </Card>
+      ))}
+
+    </Stack>
+  )}
 </Modal>
       </Box>
   )

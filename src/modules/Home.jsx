@@ -29,6 +29,7 @@ export default function Home() {
     "/users",
     "/stratergies",
     "/create-stratergy",
+    "/create-signal",
     "/trading-signal",
     "/plans-pricing",
     "/subscriptions",
