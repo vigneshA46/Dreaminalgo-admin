@@ -10,9 +10,50 @@ const Users = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [users , setusers] = useState([])
   const [activeTab, setActiveTab] = useState('users');
-  //marketplace == users , my strategies== deployments
 
-  const [opened, setOpened] = useState(false);
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [passwordUser, setPasswordUser] = useState(null);
+
+  const [passwordForm, setPasswordForm] = useState({
+   password: "",
+    confirmPassword: ""
+  });
+
+
+const handlePasswordClick = (user) => {
+  setPasswordUser(user);
+  setPasswordForm({
+    password: "",
+    confirmPassword: ""
+  });
+  setPasswordModalOpen(true);
+};
+
+
+const changePassword = async () => {
+  try {
+    if (passwordForm.password !== passwordForm.confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    await apiRequest(
+      "POST",
+      "/api/auth/change-password-admin",
+      {
+        userId: passwordUser.id,
+        password: passwordForm.password
+      }
+    );
+
+    setPasswordModalOpen(false);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+
+const [opened, setOpened] = useState(false);
 const [selectedUser, setSelectedUser] = useState(null);
 
 const [form, setForm] = useState({
@@ -35,7 +76,6 @@ const handleEditClick = (user) => {
 
 
 
-
   useEffect(()=>{
     const fetchusers = async ()=>{
       try{
@@ -48,6 +88,8 @@ const handleEditClick = (user) => {
     }
     fetchusers()
   }, [])
+
+
 
   const updateuser = async () => {
   try {
@@ -76,6 +118,7 @@ const handleEditClick = (user) => {
     console.log(err);
   }
 };
+
 
   return (
     <>
@@ -159,6 +202,7 @@ const handleEditClick = (user) => {
                        Token
                      </Table.Th>
                      <Table.Th>Action</Table.Th>
+                     <Table.Th>Change Password</Table.Th>
                    </Table.Tr>
                  </Table.Thead>
                  <Table.Tbody>
@@ -200,6 +244,14 @@ const handleEditClick = (user) => {
     <IconEdit size={18} />
   </Button>
 </Table.Td>
+<Table.Td>
+  <Button
+    variant="subtle"
+    onClick={() => handlePasswordClick(user)}
+  >
+    Change
+  </Button>
+</Table.Td>
       </Table.Tr>
     ))
   )}
@@ -212,6 +264,47 @@ const handleEditClick = (user) => {
                 }
                  
                </Box>
+               <Modal
+  opened={passwordModalOpen}
+  onClose={() => setPasswordModalOpen(false)}
+  title="Change Password"
+  centered
+>
+  <TextInput
+    label="New Password"
+    type="password"
+    value={passwordForm.password}
+    onChange={(e) =>
+      setPasswordForm({
+        ...passwordForm,
+        password: e.target.value
+      })
+    }
+    mb="sm"
+  />
+
+  <TextInput
+    label="Confirm Password"
+    type="password"
+    value={passwordForm.confirmPassword}
+    onChange={(e) =>
+      setPasswordForm({
+        ...passwordForm,
+        confirmPassword: e.target.value
+      })
+    }
+    mb="md"
+  />
+
+  <Group justify="flex-end">
+    <Button
+      onClick={changePassword}
+      style={{ backgroundColor: "black" }}
+    >
+      Change Password
+    </Button>
+  </Group>
+</Modal>
 
 
                <Modal
