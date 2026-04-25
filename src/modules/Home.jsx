@@ -38,7 +38,8 @@ export default function Home() {
     "/reports",
    "/tutorials",
    "/notifications",
-   "/settings"
+   "/settings",
+   "/coupons"
   ];
 
   // detect active index from current URL

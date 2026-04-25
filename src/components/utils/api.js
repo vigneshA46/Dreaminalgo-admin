@@ -5,7 +5,7 @@ const cloudurl = `https://dreaminalgo-backend-production.up.railway.app`
 const domainurl = `https://algoapi.dreamintraders.in`
 
 const api = axios.create({
-   baseURL: `${domainurl}`,
+   baseURL: `${localurl}`,
     withCredentials: true, // 🍪 cookies  auto sent 
     headers: { 
       'Content-Type': 'application/json',
@@ -17,7 +17,7 @@ const api = axios.create({
 =========================== */
 
 const refreshAccessToken = async () => {
-  try {
+  try { 
     await api.post('/api/adminauth/refresh');
     return true;
   } catch (err) {

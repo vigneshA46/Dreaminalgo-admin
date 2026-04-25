@@ -20,6 +20,7 @@ import Planspricing from './components/Planspricing';
 import Tutorials from './components/Tutorials';
 import Login from './components/Login';
 import Createtradersignal from './components/Createtradersignal';
+import Coupons from './components/coupons';
 
 function App() {
 
@@ -52,6 +53,7 @@ function App() {
           <Route path='trading-signal' element={<Createtradersignal/>} />
           <Route path='plans-pricing' element={<Planspricing/>} />
           <Route path='tutorials' element={<Tutorials/>} />
+          <Route path='coupons' element={<Coupons/>} />
           
           </Route>
         </Routes>

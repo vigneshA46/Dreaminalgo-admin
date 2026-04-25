@@ -22,6 +22,7 @@ import {
   IconWaveSine,
   IconCurrencyRupee,
   IconSchool,
+  IconTicket,
 } from "@tabler/icons-react";
 import classes from "./Sidebar.module.css";
 import logowhite from "../../assets/logowhite.png"
@@ -45,6 +46,7 @@ const menu = [
   { label: "Tutorials", icon: IconSchool },
   { label: "Notifications", icon: IconBell },
   { label: "Settings", icon: IconSettings },
+  { label: "Coupons", icon: IconTicket },
 ];
 
 export default function Sidebar({ active, onSelect, mobileOpen, setMobileOpen, collapsed, setCollapsed }) {
