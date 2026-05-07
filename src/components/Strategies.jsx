@@ -21,7 +21,9 @@ const [form, setForm] = useState({
   description: "",
   capitalRequired: "",
   tokensRequired: "",
-  isPaid: false
+  isPaid: false,
+  startingTime: "",
+  endingTime: ""
 });
 
 const handleView = (strategy) => {
@@ -130,8 +132,9 @@ const deleteuserstratergy  = async (id)=>{
       const fetchStratergy = async ()=>{
       try {
         const strategies = await apiRequest("GET","/api/stratergy")
-        /* console.log(strategies) */
-        await setstrategies(strategies)
+        console.log(strategies)
+
+        await setstrategies(strategies.strategies)
       }
       catch(err){
         console.log(err)
@@ -304,19 +307,23 @@ const deleteuserstratergy  = async (id)=>{
 
             {/* Right Content - Strategy Cards */}
             <Grid.Col span={{ base: 12, md: 9 }}>
-              {strategies.map((strategy) => (
+              {strategies?.map((strategy) => (
                 <Card
                 my={'1rem'}
   key={strategy.id}
   onClick={() => {
     setSelectedStrategy(strategy);
     setForm({
-      name: strategy.name,
-      description: strategy.description,
-      capitalRequired: strategy.capital_required,
-      tokensRequired: strategy.tokens_required,
-      isPaid: strategy.is_paid
-    });
+  name: strategy.name || "",
+  description: strategy.description || "",
+  capitalRequired: strategy.capital_required || "",
+  tokensRequired: strategy.tokens_required || "",
+  isPaid: strategy.is_paid || false,
+
+  // shows current DB values
+  startingTime: strategy.starting_time || "",
+  endingTime: strategy.ending_time || ""
+});
     setOpened(true);
   }}
   style={{
@@ -431,6 +438,23 @@ const deleteuserstratergy  = async (id)=>{
         setForm({ ...form, tokensRequired: e.target.value })
       }
     />
+    <TextInput
+  label="Starting Time"
+  type="time"
+  value={form.startingTime}
+  onChange={(e) =>
+    setForm({ ...form, startingTime: e.target.value })
+  }
+/>
+
+<TextInput
+  label="Ending Time"
+  type="time"
+  value={form.endingTime}
+  onChange={(e) =>
+    setForm({ ...form, endingTime: e.target.value })
+  }
+/>
 
     <Switch
       label="Paid Strategy"
