@@ -2,9 +2,10 @@ import { Box, ScrollArea, Table, Text } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks';
 import React, { useEffect, useState } from 'react'
 import { apiRequest } from './utils/api';
-import { Modal, Button, TextInput, Switch, NumberInput, Group } from '@mantine/core';
+import { Modal, Button, TextInput, Switch, NumberInput, Group, PasswordInput } from '@mantine/core';
 import { IconEdit } from '@tabler/icons-react';
 import DeploymentsDashboard from './DeploymentsDashboard';
+import { notifications } from "@mantine/notifications";
 
 const Users = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -13,6 +14,7 @@ const Users = () => {
 
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [passwordUser, setPasswordUser] = useState(null);
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   const [passwordForm, setPasswordForm] = useState({
    password: "",
@@ -31,27 +33,66 @@ const handlePasswordClick = (user) => {
 
 
 const changePassword = async () => {
+
+  if (passwordLoading) return;
+
   try {
-    if (passwordForm.password !== passwordForm.confirmPassword) {
-      alert("Passwords do not match");
+
+    if (!passwordForm.password || !passwordForm.confirmPassword) {
+
+      notifications.show({
+        title: "Missing Fields",
+        message: "Please fill all fields",
+        color: "red",
+      });
+
       return;
     }
+
+    if (passwordForm.password !== passwordForm.confirmPassword) {
+
+      notifications.show({
+        title: "Password Mismatch",
+        message: "Passwords do not match",
+        color: "red",
+      });
+
+      return;
+    }
+
+    setPasswordLoading(true);
 
     await apiRequest(
       "POST",
       "/api/auth/change-password-admin",
       {
         userId: passwordUser.id,
-        password: passwordForm.password
+        password: passwordForm.password,
       }
     );
 
+    notifications.show({
+      title: "Password Updated",
+      message: `Password updated for ${passwordUser.fullname}`,
+      color: "green",
+    });
+
     setPasswordModalOpen(false);
+
   } catch (err) {
+
     console.log(err);
+
+    notifications.show({
+      title: "Update Failed",
+      message: err.message || "Failed to update password",
+      color: "red",
+    });
+
+  } finally {
+    setPasswordLoading(false);
   }
 };
-
 
 const [opened, setOpened] = useState(false);
 const [selectedUser, setSelectedUser] = useState(null);
@@ -266,43 +307,47 @@ const handleEditClick = (user) => {
                </Box>
                <Modal
   opened={passwordModalOpen}
-  onClose={() => setPasswordModalOpen(false)}
+  onClose={() => {
+    if (!passwordLoading) {
+      setPasswordModalOpen(false);
+    }}}
   title="Change Password"
   centered
 >
-  <TextInput
-    label="New Password"
-    type="password"
-    value={passwordForm.password}
-    onChange={(e) =>
-      setPasswordForm({
-        ...passwordForm,
-        password: e.target.value
-      })
-    }
-    mb="sm"
-  />
+  <PasswordInput
+  label="New Password"
+  value={passwordForm.password}
+  onChange={(e) =>
+    setPasswordForm({
+      ...passwordForm,
+      password: e.target.value
+    })
+  }
+  mb="sm"
+/>
 
-  <TextInput
-    label="Confirm Password"
-    type="password"
-    value={passwordForm.confirmPassword}
-    onChange={(e) =>
-      setPasswordForm({
-        ...passwordForm,
-        confirmPassword: e.target.value
-      })
-    }
-    mb="md"
-  />
+ <PasswordInput
+  label="Confirm Password"
+  value={passwordForm.confirmPassword}
+  onChange={(e) =>
+    setPasswordForm({
+      ...passwordForm,
+      confirmPassword: e.target.value
+    })
+  }
+  mb="md"
+/>
 
   <Group justify="flex-end">
     <Button
-      onClick={changePassword}
-      style={{ backgroundColor: "black" }}
-    >
-      Change Password
-    </Button>
+  onClick={changePassword}
+  loading={passwordLoading}
+  disabled={passwordLoading}
+  loaderProps={{ size: "sm" }}
+  style={{ backgroundColor: "black" }}
+>
+  {passwordLoading ? "Updating..." : "Change Password"}
+</Button>
   </Group>
 </Modal>
 
