@@ -47,6 +47,7 @@ const menu = [
   { label: "Notifications", icon: IconBell },
   { label: "Settings", icon: IconSettings },
   { label: "Coupons", icon: IconTicket },
+  { label: "Stocks", icon: IconTicket },
 ];
 
 export default function Sidebar({ active, onSelect, mobileOpen, setMobileOpen, collapsed, setCollapsed }) {

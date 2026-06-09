@@ -21,6 +21,7 @@ import Tutorials from './components/Tutorials';
 import Login from './components/Login';
 import Createtradersignal from './components/Createtradersignal';
 import Coupons from './components/coupons';
+import StockSelection from './components/StockSelect';
 
 function App() {
 
@@ -54,6 +55,7 @@ function App() {
           <Route path='plans-pricing' element={<Planspricing/>} />
           <Route path='tutorials' element={<Tutorials/>} />
           <Route path='coupons' element={<Coupons/>} />
+          <Route path='select-coupons' element={<StockSelection/>} />
           
           </Route>
         </Routes>
