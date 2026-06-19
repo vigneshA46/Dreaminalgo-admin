@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MantineProvider, Box, Container, Group, Button, TextInput, Radio, Text, Card, Badge, Anchor, Grid, Stack } from '@mantine/core';
+import { MantineProvider, Box, Container, Group, Button, TextInput, Radio, Text, Card, Badge, Anchor, Grid, Stack, Select } from '@mantine/core';
 import { IconSearch, IconCurrencyRupee } from '@tabler/icons-react';
 import { apiRequest } from './utils/api';
 import { Modal, Switch } from "@mantine/core";
@@ -16,6 +16,8 @@ const Stratergies = () => {
 const [selectedStrategy, setSelectedStrategy] = useState(null);
 const [useropened, setuserOpened] = useState(false);
 const [userselectedStrategy, setuserSelectedStrategy] = useState(null);
+
+
 const [form, setForm] = useState({
   name: "",
   description: "",
@@ -23,7 +25,9 @@ const [form, setForm] = useState({
   tokensRequired: "",
   isPaid: false,
   startingTime: "",
-  endingTime: ""
+  endingTime: "",
+  stateId: "",
+  category: ""
 });
 
 const handleView = (strategy) => {
@@ -319,10 +323,10 @@ const deleteuserstratergy  = async (id)=>{
   capitalRequired: strategy.capital_required || "",
   tokensRequired: strategy.tokens_required || "",
   isPaid: strategy.is_paid || false,
-
-  // shows current DB values
   startingTime: strategy.starting_time || "",
-  endingTime: strategy.ending_time || ""
+  endingTime: strategy.ending_time || "",
+  stateId: strategy.state_id || "",
+  category: strategy.category || "others"
 });
     setOpened(true);
   }}
@@ -453,6 +457,26 @@ const deleteuserstratergy  = async (id)=>{
   value={form.endingTime}
   onChange={(e) =>
     setForm({ ...form, endingTime: e.target.value })
+  }
+/>
+
+<TextInput
+  label="State ID"
+  value={form.stateId}
+  onChange={(e) =>
+    setForm({ ...form, stateId: e.target.value })
+  }
+/>
+
+<TextInput
+  label="Category"
+  placeholder="Enter category"
+  value={form.category}
+  onChange={(e) =>
+    setForm({
+      ...form,
+      category: e.target.value
+    })
   }
 />
 
