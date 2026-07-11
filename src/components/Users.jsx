@@ -102,7 +102,7 @@ const [form, setForm] = useState({
   isactive: false,
   mobile_number: "",
   tokens: 0,
-    status: "",
+  status: "",
   remarks: "",
 });
 
@@ -299,8 +299,8 @@ const handleEditClick = (user) => {
     Change
   </Button>
 </Table.Td>
-<Table.Td>{user.status || "-"}</Table.Td>
-<Table.Td>{user.remarks || "-"}</Table.Td>
+  <Table.Td>{user.status || "-"}</Table.Td>
+  <Table.Td>{user.remarks || "-"}</Table.Td>
       </Table.Tr>
     ))
   )}
@@ -345,29 +345,7 @@ const handleEditClick = (user) => {
   }
   mb="md"
 />
-<TextInput
-  label="Status"
-  value={form.status}
-  onChange={(e) =>
-    setForm({
-      ...form,
-      status: e.target.value,
-    })
-  }
-  mb="sm"
-/>
 
-<TextInput
-  label="Remarks"
-  value={form.remarks}
-  onChange={(e) =>
-    setForm({
-      ...form,
-      remarks: e.target.value,
-    })
-  }
-  mb="sm"
-/>
 
   <Group justify="flex-end">
     <Button
@@ -416,6 +394,29 @@ const handleEditClick = (user) => {
     }
     mb="sm"
   />
+  <TextInput
+  label="Status"
+  value={form.status}
+  onChange={(e) =>
+    setForm({
+      ...form,
+      status: e.target.value,
+    })
+  }
+  mb="sm"
+/>
+
+<TextInput
+  label="Remarks"
+  value={form.remarks}
+  onChange={(e) =>
+    setForm({
+      ...form,
+      remarks: e.target.value,
+    })
+  }
+  mb="sm"
+/>
 
   <Switch
     label="Active Status"
