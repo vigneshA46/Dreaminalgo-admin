@@ -22,6 +22,7 @@ import Login from './components/Login';
 import Createtradersignal from './components/Createtradersignal';
 import Coupons from './components/coupons';
 import StockSelection from './components/StockSelect';
+import Emergency_exit from './components/Emergency_exit';
 
 function App() {
 
@@ -56,6 +57,8 @@ function App() {
           <Route path='tutorials' element={<Tutorials/>} />
           <Route path='coupons' element={<Coupons/>} />
           <Route path='select-coupons' element={<StockSelection/>} />
+          <Route path='emergency' element={<Emergency_exit/>} />
+          
           
           </Route>
         </Routes>

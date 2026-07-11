@@ -23,6 +23,7 @@ import {
   IconCurrencyRupee,
   IconSchool,
   IconTicket,
+  IconEmergencyBed,
 } from "@tabler/icons-react";
 import classes from "./Sidebar.module.css";
 import logowhite from "../../assets/logowhite.png"
@@ -48,6 +49,7 @@ const menu = [
   { label: "Settings", icon: IconSettings },
   { label: "Coupons", icon: IconTicket },
   { label: "Stocks", icon: IconTicket },
+  {label:"Emergency Exit", icon: IconEmergencyBed}
 ];
 
 export default function Sidebar({ active, onSelect, mobileOpen, setMobileOpen, collapsed, setCollapsed }) {
