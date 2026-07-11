@@ -101,21 +101,25 @@ const [form, setForm] = useState({
   fullname: "",
   isactive: false,
   mobile_number: "",
-  tokens: 0
+  tokens: 0,
+    status: "",
+  remarks: "",
 });
 
 const handleEditClick = (user) => {
   setSelectedUser(user);
+
   setForm({
     fullname: user.fullname || "",
     isactive: user.isactive || false,
     mobile_number: user.mobile_number || "",
-    tokens: user.tokens || 0
+    tokens: user.tokens || 0,
+    status: user.status || "",
+    remarks: user.remarks || "",
   });
+
   setOpened(true);
 };
-
-
 
   useEffect(()=>{
     const fetchusers = async ()=>{
@@ -244,6 +248,8 @@ const handleEditClick = (user) => {
                      </Table.Th>
                      <Table.Th>Action</Table.Th>
                      <Table.Th>Change Password</Table.Th>
+                     <Table.Th>Status</Table.Th>
+                      <Table.Th>Remarks</Table.Th>
                    </Table.Tr>
                  </Table.Thead>
                  <Table.Tbody>
@@ -293,6 +299,8 @@ const handleEditClick = (user) => {
     Change
   </Button>
 </Table.Td>
+<Table.Td>{user.status || "-"}</Table.Td>
+<Table.Td>{user.remarks || "-"}</Table.Td>
       </Table.Tr>
     ))
   )}
@@ -337,6 +345,29 @@ const handleEditClick = (user) => {
   }
   mb="md"
 />
+<TextInput
+  label="Status"
+  value={form.status}
+  onChange={(e) =>
+    setForm({
+      ...form,
+      status: e.target.value,
+    })
+  }
+  mb="sm"
+/>
+
+<TextInput
+  label="Remarks"
+  value={form.remarks}
+  onChange={(e) =>
+    setForm({
+      ...form,
+      remarks: e.target.value,
+    })
+  }
+  mb="sm"
+/>
 
   <Group justify="flex-end">
     <Button
@@ -349,6 +380,7 @@ const handleEditClick = (user) => {
   {passwordLoading ? "Updating..." : "Change Password"}
 </Button>
   </Group>
+  
 </Modal>
 
 
