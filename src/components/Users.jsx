@@ -1,6 +1,6 @@
 import { Box, ScrollArea, Table, Text } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState , useMemo } from 'react'
 import { apiRequest } from './utils/api';
 import { Modal, Button, TextInput, Switch, NumberInput, Group, PasswordInput } from '@mantine/core';
 import { IconEdit } from '@tabler/icons-react';
@@ -15,6 +15,7 @@ const Users = () => {
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [passwordUser, setPasswordUser] = useState(null);
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [search, setSearch] = useState("");
 
   const [passwordForm, setPasswordForm] = useState({
    password: "",
@@ -164,6 +165,20 @@ const handleEditClick = (user) => {
   }
 };
 
+const filteredUsers = useMemo(() => {
+  const query = search.trim().toLowerCase();
+
+  if (!query) return users;
+
+  return users.filter((user) => {
+    return (
+      user.fullname?.toLowerCase().includes(query) ||
+      user.email?.toLowerCase().includes(query) ||
+      user.mobile_number?.toLowerCase().includes(query)
+    );
+  });
+}, [users, search]);
+
 
   return (
     <>
@@ -213,6 +228,13 @@ const handleEditClick = (user) => {
                 }}
               >
 
+                <TextInput
+  placeholder="Search by Name, Email or Mobile Number..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  mb="md"
+/>
+
                 {
                   activeTab == 'users'?  <ScrollArea  w={isMobile? '100vw':'100%'}
                     type="auto"
@@ -253,7 +275,7 @@ const handleEditClick = (user) => {
                    </Table.Tr>
                  </Table.Thead>
                  <Table.Tbody>
-  {users.length === 0 ? (
+  {filteredUsers.length === 0 ? (
     <Table.Tr>
       <Table.Td
         colSpan={6}
@@ -268,7 +290,7 @@ const handleEditClick = (user) => {
       </Table.Td>
     </Table.Tr>
   ) : (
-    users.map((user, index) => (
+    filteredUsers.map((user, index) => (
       <Table.Tr key={user.id}>
         <Table.Td>{index + 1}</Table.Td>
         <Table.Td>{user.fullname}</Table.Td>
