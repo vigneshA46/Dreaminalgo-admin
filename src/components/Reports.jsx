@@ -31,6 +31,7 @@ const Reports = () => {
       setLoading(true);
       const endpoi = endpointMap[view]
       const res = await apiRequest('GET' , endpoi);
+
       setData(res.data || []);
     } catch (err) {
       console.error(err);
@@ -121,6 +122,7 @@ const Reports = () => {
 
                 <Table.Tbody>
                   {data.map((row, index) => (
+
                     <React.Fragment key={index}>
                       <Table.Tr
                         onClick={() =>
@@ -159,9 +161,6 @@ const Reports = () => {
                                   radius="md"
                                 >
                                   <Group justify="space-between">
-                                    <Text c="black" size="sm">
-                                      {d.strategy_name || "No Strategy"}
-                                    </Text>
                                     <Text size="xs" c="gray">
                                       {d.type}
                                     </Text>

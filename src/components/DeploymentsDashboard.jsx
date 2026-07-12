@@ -39,9 +39,11 @@ const DeploymentsDashboard = () => {
     try {
       const res = await apiRequest("GET", "/api/stratergy");
 
+      const strategy = res.strategies
+
       // convert array → map
       const map = {};
-      res.forEach((s) => {
+      strategy.forEach((s) => {
         map[s.id] = s;
       });
 
@@ -164,6 +166,7 @@ const DeploymentsDashboard = () => {
         <Stack>
           {groupedData.map((strategy) => {
             const strategyDetails = strategies[strategy.strategy_id];
+
 
             return (
               <Card key={strategy.strategy_id} p="md" radius="lg" withBorder>

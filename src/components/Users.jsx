@@ -126,7 +126,7 @@ const handleEditClick = (user) => {
     const fetchusers = async ()=>{
       try{
         const res = await apiRequest('POST','/api/users')
-        console.log(res)
+        //console.log(res)
         setusers(res)
       }catch(err){
         console.log(err)
@@ -150,7 +150,7 @@ const handleEditClick = (user) => {
       payload
     );
 
-    console.log(res);
+    //console.log(res);
 
     // update UI
     setusers((prev) =>
