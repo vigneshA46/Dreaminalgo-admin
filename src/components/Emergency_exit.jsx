@@ -11,11 +11,16 @@ import {
 import { notifications } from "@mantine/notifications";
 import React, { useEffect, useState } from "react";
 import { apiRequest } from "./utils/api";
+import { useNavigate } from "react-router-dom";
+
 
 const Emergency_exit = () => {
   const [strategies, setStrategies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [exitLoading, setExitLoading] = useState("");
+  const navigate = useNavigate();
+
+  
 
   useEffect(() => {
     fetchStrategies();
@@ -92,6 +97,10 @@ const Emergency_exit = () => {
       <Title order={2} mb="lg">
         Emergency Exit
       </Title>
+
+      <Button onClick={() => navigate("/emergency-trade-exit")} >
+        Emergency Exit All Strategies
+      </Button>
 
       <Table p={4} highlightOnHover withTableBorder>
 
