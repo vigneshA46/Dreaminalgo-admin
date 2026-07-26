@@ -11,11 +11,24 @@ const Stratergies = () => {
   const [selectedFee, setSelectedFee] = useState('');
   const [selectedSort, setSelectedSort] = useState('');
   const [strategies , setstrategies] = useState([])
+  const [pendingStrategies, setPendingStrategies] = useState([]);
+
   const [mystartergieslist , setmystartergieslist] = useState([]);
   const [opened, setOpened] = useState(false);
 const [selectedStrategy, setSelectedStrategy] = useState(null);
 const [useropened, setuserOpened] = useState(false);
 const [userselectedStrategy, setuserSelectedStrategy] = useState(null);
+const [createOpened, setCreateOpened] = useState(false);
+
+const [createForm, setCreateForm] = useState({
+  name: "",
+  description: "",
+  capitalRequired: "",
+  tokensRequired: "",
+  isPaid: false,
+  startingTime: "",
+  endingTime: ""
+});
 
 
 const [form, setForm] = useState({
@@ -34,6 +47,101 @@ const handleView = (strategy) => {
   setuserSelectedStrategy(strategy);
   setuserOpened(true);
 };
+
+
+const handleCreateStrategy = async () => {
+  try {
+    const payload = {
+      name: createForm.name,
+      description: createForm.description,
+      capitalRequired: createForm.capitalRequired,
+      tokensRequired: createForm.tokensRequired,
+      isPaid: createForm.isPaid,
+      startingTime: createForm.startingTime,
+      endingTime: createForm.endingTime
+    };
+
+    await apiRequest(
+      "POST",
+      "/api/stratergy",
+      payload
+    );
+
+    // Close modal
+    setCreateOpened(false);
+
+    // Reset form
+    setCreateForm({
+      name: "",
+      description: "",
+      capitalRequired: "",
+      tokensRequired: "",
+      isPaid: false,
+      startingTime: "",
+      endingTime: ""
+    });
+
+    // Refresh strategies list
+    fetchStratergy();
+
+  } catch (err) {
+    console.log("Error creating strategy:", err);
+  }
+};
+
+const fetchPendingStrategies = async () => {
+  try {
+    const pending = await apiRequest(
+      "GET",
+      "/api/stratergy/pending"
+    );
+
+    console.log("Pending strategies:", pending);
+
+    setPendingStrategies(pending.strategies);
+  } catch (err) {
+    console.log("Error fetching pending strategies:", err);
+  }
+};
+const activateStrategy = async (id) => {
+  try {
+    await apiRequest(
+      "PATCH",
+      `/api/stratergy/${id}/active`
+    );
+
+    // Refresh both lists
+    fetchStratergy();
+    fetchPendingStrategies();
+
+  } catch (err) {
+    console.log("Error activating strategy:", err);
+  }
+};
+
+const deletePendingStrategy = async (id) => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this pending strategy?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    await apiRequest(
+      "DELETE",
+      `/api/stratergy/${id}`
+    );
+
+    // Refresh both lists
+    fetchStratergy();
+    fetchPendingStrategies();
+
+  } catch (err) {
+    console.log("Error deleting pending strategy:", err);
+  }
+};
+
+
 
 const handleDelete = async (id) => {
   const confirmDelete = window.confirm("Are you sure you want to delete this strategy?");
@@ -149,13 +257,42 @@ const deleteuserstratergy  = async (id)=>{
   
   useEffect(()=>{
     fetchStratergy();
+    fetchPendingStrategies();
+
   },[])
 
   
   return (
      <Box style={{ backgroundColor: '#ffffffff', minHeight: '100vh' }}>
         <Container size="xl" style={{ maxWidth: '1400px' }}>
-      <Text size='1.5rem' fw={"600"} pb={"1rem"} >Stratergies</Text>
+      <Group justify="space-between" align="center" mb="1rem">
+  <Text size="1.5rem" fw={600}>
+    Stratergies
+  </Text>
+
+  <Button
+    style={{
+      backgroundColor: "black",
+      color: "white"
+    }}
+    radius="md"
+    onClick={() => {
+      setCreateForm({
+        name: "",
+        description: "",
+        capitalRequired: "",
+        tokensRequired: "",
+        isPaid: false,
+        startingTime: "",
+        endingTime: ""
+      });
+
+      setCreateOpened(true);
+    }}
+  >
+    + Create Strategy
+  </Button>
+</Group>
           {/* Tabs */}
           <Group gap="md" mb="xl">
             <Button
@@ -311,78 +448,303 @@ const deleteuserstratergy  = async (id)=>{
 
             {/* Right Content - Strategy Cards */}
             <Grid.Col span={{ base: 12, md: 9 }}>
-              {strategies?.map((strategy) => (
-                <Card
-                my={'1rem'}
-  key={strategy.id}
-  onClick={() => {
-    setSelectedStrategy(strategy);
-    setForm({
-  name: strategy.name || "",
-  description: strategy.description || "",
-  capitalRequired: strategy.capital_required || "",
-  tokensRequired: strategy.tokens_required || "",
-  isPaid: strategy.is_paid || false,
-  startingTime: strategy.starting_time || "",
-  endingTime: strategy.ending_time || "",
-  stateId: strategy.state_id || "",
-  category: strategy.category || "others"
-});
-    setOpened(true);
-  }}
-  style={{
-    cursor: "pointer",
-    backgroundColor: "white",
-    border: "1px solid #e9ecef"
-  }}
+
+  {/* PENDING STRATEGIES */}
+  {pendingStrategies?.length > 0 && (
+    <Box mb="2rem">
+
+      <Text
+        size="xl"
+        fw={700}
+        mb="md"
+        c="#212529"
+      >
+        Pending Strategies
+      </Text>
+
+      {pendingStrategies.map((strategy) => (
+        <Card
+          my="1rem"
+          key={strategy.id}
+          onClick={() => {
+            setSelectedStrategy(strategy);
+
+            setForm({
+              name: strategy.name || "",
+              description: strategy.description || "",
+              capitalRequired: strategy.capital_required || "",
+              tokensRequired: strategy.tokens_required || "",
+              isPaid: strategy.is_paid || false,
+              startingTime: strategy.starting_time || "",
+              endingTime: strategy.ending_time || "",
+              stateId: strategy.state_id || "",
+              category: strategy.category || "others"
+            });
+
+            setOpened(true);
+          }}
+          style={{
+            cursor: "pointer",
+            backgroundColor: "#fff8e1",
+            border: "1px solid #e9ecef"
+          }}
+        >
+
+          <Group
+            justify="space-between"
+            align="flex-start"
+            mb="md"
+          >
+            <Box style={{ flex: 1 }}>
+
+              <Text
+                size="lg"
+                fw={400}
+                c="#212529"
+                mb={8}
+              >
+                Strategy ID: {strategy.id}
+              </Text>
+
+              <Text
+                size="lg"
+                fw={600}
+                c="#212529"
+                mb={8}
+              >
+                {strategy.name}
+              </Text>
+
+              <Text
+                size="sm"
+                c="#495057"
+                mb={8}
+              >
+                {strategy.description}
+              </Text>
+
+            </Box>
+
+            <Badge
+              color="yellow"
+              variant="light"
+            >
+              Pending
+            </Badge>
+
+          </Group>
+
+          <Group
+  justify="space-between"
+  align="center"
+  mt="lg"
 >
-                  <Group justify="space-between" align="flex-start" mb="md">
-                    <Box style={{ flex: 1 }}>
-                      <Text size="lg" fw={600} c="#212529" mb={8}>
-                        {strategy.name}
-                      </Text>
-                      <Text size="sm" c="#495057" mb={8}>
-                        {strategy.description}
-                        <Anchor
-                          href="#"
-                          size="sm"
-                          style={{ color: '#1864ab', marginLeft: '4px' }}
-                        >
-                          ...read more.
-                        </Anchor>
-                      </Text>
-                    </Box>
-                    
-                  </Group>
+  <Box>
+    <Text
+      size="xs"
+      c="#868e96"
+      mb={4}
+    >
+      Capital
+    </Text>
 
-                  <Group justify="space-between" align="center">
-                    <Group gap="xl">
-                      <Box>
-                        <Text size="xs" c="#868e96" mb={4}>
-                          Capital
-                        </Text>
-                        <Group gap={4} align="center">
-                          <IconCurrencyRupee size={18} color="#dc3545" stroke={2} />
-                          <Text size="lg" fw={700} c="#dc3545">
-                            {strategy.capital_required}
-                          </Text>
-                        </Group>
-                      </Box>
-                     {/*  <Box>
-                        <Text size="xs" c="#868e96" mb={4}>
-                          DD
-                        </Text>
-                        <Text size="lg" fw={700} c="#1864ab">
-                          {strategy.dd}
-                        </Text>
-                      </Box> */}
-                    </Group>
+    <Group gap={4} align="center">
+      <IconCurrencyRupee
+        size={18}
+        color="#dc3545"
+        stroke={2}
+      />
 
-                    
-                  </Group>
-                </Card> 
-              ))}
-            </Grid.Col>
+      <Text
+        size="lg"
+        fw={700}
+        c="#dc3545"
+      >
+        {strategy.capital_required}
+      </Text>
+    </Group>
+  </Box>
+
+  <Group gap="sm">
+
+    <Button
+      size="sm"
+      color="green"
+      onClick={(e) => {
+        e.stopPropagation();
+        activateStrategy(strategy.id);
+      }}
+    >
+      Activate
+    </Button>
+
+    <Button
+      size="sm"
+      color="red"
+      variant="outline"
+      onClick={(e) => {
+        e.stopPropagation();
+        deletePendingStrategy(strategy.id);
+      }}
+    >
+      Delete
+    </Button>
+
+  </Group>
+</Group>
+
+        </Card>
+      ))}
+
+    </Box>
+  )}
+
+
+  {/* APPROVED / ACTIVE STRATEGIES */}
+  <Text
+    size="xl"
+    fw={700}
+    mb="md"
+    c="#212529"
+  >
+    Active Strategies
+  </Text>
+
+  {strategies?.map((strategy) => (
+
+    <Card
+      my="1rem"
+      key={strategy.id}
+      onClick={() => {
+
+        setSelectedStrategy(strategy);
+
+        setForm({
+          name: strategy.name || "",
+          description: strategy.description || "",
+          capitalRequired: strategy.capital_required || "",
+          tokensRequired: strategy.tokens_required || "",
+          isPaid: strategy.is_paid || false,
+          startingTime: strategy.starting_time || "",
+          endingTime: strategy.ending_time || "",
+          stateId: strategy.state_id || "",
+          category: strategy.category || "others"
+        });
+
+        setOpened(true);
+
+      }}
+      style={{
+        cursor: "pointer",
+        backgroundColor: "white",
+        border: "1px solid #e9ecef"
+      }}
+    >
+
+      <Group
+        justify="space-between"
+        align="flex-start"
+        mb="md"
+      >
+
+        <Box style={{ flex: 1 }}>
+
+          <Text
+            size="lg"
+            fw={400}
+            c="#212529"
+            mb={8}
+          >
+            Strategy ID: {strategy.id}
+          </Text>
+
+          <Text
+            size="lg"
+            fw={600}
+            c="#212529"
+            mb={8}
+          >
+            {strategy.name}
+          </Text>
+
+          <Text
+            size="sm"
+            c="#495057"
+            mb={8}
+          >
+            {strategy.description}
+
+            <Anchor
+              href="#"
+              size="sm"
+              style={{
+                color: "#1864ab",
+                marginLeft: "4px"
+              }}
+            >
+              ...read more.
+            </Anchor>
+
+          </Text>
+
+        </Box>
+
+      </Group>
+<Group
+  justify="space-between"
+  align="center"
+  mt="lg"
+>
+  <Group gap="xl">
+
+    <Box>
+      <Text
+        size="xs"
+        c="#868e96"
+        mb={4}
+      >
+        Capital
+      </Text>
+
+      <Group gap={4} align="center">
+
+        <IconCurrencyRupee
+          size={18}
+          color="#dc3545"
+          stroke={2}
+        />
+
+        <Text
+          size="lg"
+          fw={700}
+          c="#dc3545"
+        >
+          {strategy.capital_required}
+        </Text>
+
+      </Group>
+    </Box>
+
+  </Group>
+
+  <Button
+    size="sm"
+    color="orange"
+    variant="outline"
+    onClick={(e) => {
+      e.stopPropagation();
+      deactivateStrategy(strategy.id);
+    }}
+  >
+    Deactivate
+  </Button>
+
+</Group>
+    </Card>
+
+  ))}
+
+</Grid.Col>
           </Grid>
             ) : (
               <Grid>
@@ -503,6 +865,7 @@ const deleteuserstratergy  = async (id)=>{
 
           // 🔥 Refresh list
           fetchStratergy();
+          fetchPendingStrategies();
 
         } catch (err) {
           console.log(err);
@@ -553,6 +916,113 @@ const deleteuserstratergy  = async (id)=>{
 
     </Stack>
   )}
+</Modal>
+
+<Modal
+  opened={createOpened}
+  onClose={() => setCreateOpened(false)}
+  title="Create Strategy"
+  centered
+>
+  <Stack>
+
+    <TextInput
+      label="Name"
+      placeholder="Enter strategy name"
+      value={createForm.name}
+      onChange={(e) =>
+        setCreateForm({
+          ...createForm,
+          name: e.target.value
+        })
+      }
+    />
+
+    <TextInput
+      label="Description"
+      placeholder="Enter strategy description"
+      value={createForm.description}
+      onChange={(e) =>
+        setCreateForm({
+          ...createForm,
+          description: e.target.value
+        })
+      }
+    />
+
+    <TextInput
+      label="Capital Required"
+      placeholder="Enter capital required"
+      type="number"
+      value={createForm.capitalRequired}
+      onChange={(e) =>
+        setCreateForm({
+          ...createForm,
+          capitalRequired: e.target.value
+        })
+      }
+    />
+
+    <TextInput
+      label="Tokens Required"
+      placeholder="Enter tokens required"
+      type="number"
+      value={createForm.tokensRequired}
+      onChange={(e) =>
+        setCreateForm({
+          ...createForm,
+          tokensRequired: e.target.value
+        })
+      }
+    />
+
+    <TextInput
+      label="Starting Time"
+      type="time"
+      value={createForm.startingTime}
+      onChange={(e) =>
+        setCreateForm({
+          ...createForm,
+          startingTime: e.target.value
+        })
+      }
+    />
+
+    <TextInput
+      label="Ending Time"
+      type="time"
+      value={createForm.endingTime}
+      onChange={(e) =>
+        setCreateForm({
+          ...createForm,
+          endingTime: e.target.value
+        })
+      }
+    />
+
+    <Switch
+      label="Paid Strategy"
+      checked={createForm.isPaid}
+      onChange={(e) =>
+        setCreateForm({
+          ...createForm,
+          isPaid: e.currentTarget.checked
+        })
+      }
+    />
+
+    <Button
+      fullWidth
+      style={{
+        backgroundColor: "black",
+        color: "white"
+      }}
+      onClick={handleCreateStrategy}
+    >
+      Create Strategy
+    </Button>
+
+  </Stack>
 </Modal>
       </Box>
   )

@@ -1,4 +1,4 @@
-import { Box, ScrollArea, Table, Text } from '@mantine/core'
+import { Avatar, Badge, Box, Card, ScrollArea, SimpleGrid, Stack, Table, Text } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks';
 import React, { useEffect, useState , useMemo } from 'react'
 import { apiRequest } from './utils/api';
@@ -10,6 +10,8 @@ import { notifications } from "@mantine/notifications";
 const Users = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [users , setusers] = useState([])
+  const [lowTokenUsers, setLowTokenUsers] = useState([])
+
   const [activeTab, setActiveTab] = useState('users');
 
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
@@ -21,6 +23,19 @@ const Users = () => {
    password: "",
     confirmPassword: ""
   });
+
+  const fetchLowTokenUsers = async () => {
+  try {
+    const res = await apiRequest(
+      "POST",
+      "/api/users/low-tokens"
+    );
+
+    setLowTokenUsers(res);
+  } catch (err) {
+    console.log("Error fetching low token users:", err);
+  }
+};
 
 
 const handlePasswordClick = (user) => {
@@ -133,6 +148,8 @@ const handleEditClick = (user) => {
       }
     }
     fetchusers()
+    fetchLowTokenUsers();
+
   }, [])
 
 
@@ -162,6 +179,41 @@ const handleEditClick = (user) => {
     setOpened(false);
   } catch (err) {
     console.log(err);
+  }
+};
+
+const deleteUser = async (user) => {
+  const confirmDelete = window.confirm(
+    `Are you sure you want to delete ${user.fullname}?`
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    await apiRequest(
+      "DELETE",
+      `/api/users/${user.id}`
+    );
+
+    // Remove user from UI immediately
+    setusers((prevUsers) =>
+      prevUsers.filter((u) => u.id !== user.id)
+    );
+
+    notifications.show({
+      title: "User Deleted",
+      message: `${user.fullname} has been deleted successfully.`,
+      color: "green",
+    });
+
+  } catch (err) {
+    console.log(err);
+
+    notifications.show({
+      title: "Delete Failed",
+      message: err.message || "Failed to delete user.",
+      color: "red",
+    });
   }
 };
 
@@ -227,6 +279,233 @@ const filteredUsers = useMemo(() => {
                   
                 }}
               >
+
+                {/* LOW TOKEN USERS */}
+
+{activeTab === 'users' && (
+  <Box mb="xl">
+
+    <Group
+      justify="space-between"
+      align="flex-end"
+      mb="md"
+    >
+      <Box>
+        <Text
+          size="xl"
+          fw={700}
+          c="#212529"
+        >
+          Low Token Users
+        </Text>
+
+        <Text
+          size="sm"
+          c="#868e96"
+          mt={4}
+        >
+          Users with fewer than 5 tokens
+        </Text>
+      </Box>
+
+      <Badge
+        size="lg"
+        variant="light"
+        color="red"
+        radius="xl"
+      >
+        {lowTokenUsers.length} Users
+      </Badge>
+    </Group>
+
+
+    {lowTokenUsers.length === 0 ? (
+
+      <Card
+        radius="lg"
+        withBorder
+        p="xl"
+        style={{
+          borderColor: "#e9ecef",
+          backgroundColor: "#fafafa",
+        }}
+      >
+        <Stack
+          align="center"
+          gap="xs"
+        >
+          <Text
+            size="sm"
+            fw={600}
+            c="#495057"
+          >
+            No low-token users
+          </Text>
+
+          <Text
+            size="xs"
+            c="#868e96"
+          >
+            All users currently have 5 or more tokens.
+          </Text>
+        </Stack>
+      </Card>
+
+    ) : (
+
+      <SimpleGrid
+        cols={{
+          base: 1,
+          sm: 2,
+          md: 3,
+          lg: 4
+        }}
+        spacing="md"
+      >
+
+        {lowTokenUsers.map((user) => {
+
+          const initials = user.fullname
+            ? user.fullname
+                .split(" ")
+                .map((name) => name[0])
+                .join("")
+                .slice(0, 2)
+                .toUpperCase()
+            : "U";
+
+          return (
+
+            <Card
+              key={user.id}
+              radius="lg"
+              padding="lg"
+              withBorder
+              style={{
+                borderColor: "#e9ecef",
+                backgroundColor: "white",
+                transition: "all 0.2s ease",
+                cursor: "pointer",
+              }}
+              onClick={() => handleEditClick(user)}
+            >
+
+              <Group
+                justify="space-between"
+                align="flex-start"
+                mb="md"
+              >
+
+                <Avatar
+                  size={48}
+                  radius="xl"
+                  color="dark"
+                >
+                  {initials}
+                </Avatar>
+
+                <Badge
+                  color="red"
+                  variant="light"
+                  radius="xl"
+                >
+                  Low Tokens
+                </Badge>
+
+              </Group>
+
+
+              <Box mb="md">
+
+                <Text
+                  fw={650}
+                  size="md"
+                  c="#212529"
+                  lineClamp={1}
+                >
+                  {user.fullname || "Unknown User"}
+                </Text>
+
+                <Text
+                  size="xs"
+                  c="#868e96"
+                  mt={4}
+                  lineClamp={1}
+                >
+                  {user.email || "No email available"}
+                </Text>
+
+              </Box>
+
+
+              <Box
+                style={{
+                  borderTop: "1px solid #f1f3f5",
+                  paddingTop: "12px",
+                }}
+              >
+
+                <Group
+                  justify="space-between"
+                  align="center"
+                >
+
+                  <Box>
+
+                    <Text
+                      size="xs"
+                      c="#868e96"
+                    >
+                      Available Tokens
+                    </Text>
+
+                    <Text
+                      size="xl"
+                      fw={700}
+                      c="#dc3545"
+                    >
+                      {user.tokens ?? 0}
+                    </Text>
+
+                  </Box>
+
+
+                  <Box
+                    style={{
+                      width: 42,
+                      height: 42,
+                      borderRadius: "50%",
+                      backgroundColor: "#fff5f5",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Text
+                      size="sm"
+                      fw={700}
+                      c="#dc3545"
+                    >
+                      {user.tokens ?? 0}
+                    </Text>
+                  </Box>
+
+                </Group>
+
+              </Box>
+
+            </Card>
+
+          );
+
+        })}
+
+      </SimpleGrid>
+
+    )}
+
+  </Box>
+)}
 
                 <TextInput
   placeholder="Search by Name, Email or Mobile Number..."
@@ -305,13 +584,27 @@ const filteredUsers = useMemo(() => {
           {new Date(user.createdat).toLocaleString()}
         </Table.Td>
         <Table.Td>{user.tokens}</Table.Td>
-        <Table.Td>
-  <Button
-    variant="subtle"
-    onClick={() => handleEditClick(user)}
-  >
-    <IconEdit size={18} />
-  </Button>
+     <Table.Td>
+  <Group gap="xs">
+
+    {/* Edit */}
+    <Button
+      variant="subtle"
+      onClick={() => handleEditClick(user)}
+    >
+      <IconEdit size={18} />
+    </Button>
+
+    {/* Delete */}
+    <Button
+      variant="subtle"
+      color="red"
+      onClick={() => deleteUser(user)}
+    >
+      Delete
+    </Button>
+
+  </Group>
 </Table.Td>
 <Table.Td>
   <Button
