@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MantineProvider, Box, Container, Group, Button, TextInput, Radio, Text, Card, Badge, Anchor, Grid, Stack, Select } from '@mantine/core';
+import { MantineProvider, Box, Container, Group, Button, TextInput, Radio, Text, Card, Badge, Anchor, Grid, Stack, Select, MultiSelect } from '@mantine/core';
 import { IconSearch, IconCurrencyRupee } from '@tabler/icons-react';
 import { apiRequest } from './utils/api';
 import { Modal, Switch } from "@mantine/core";
@@ -12,13 +12,50 @@ const Stratergies = () => {
   const [selectedSort, setSelectedSort] = useState('');
   const [strategies , setstrategies] = useState([])
   const [pendingStrategies, setPendingStrategies] = useState([]);
-
+  
   const [mystartergieslist , setmystartergieslist] = useState([]);
   const [opened, setOpened] = useState(false);
-const [selectedStrategy, setSelectedStrategy] = useState(null);
-const [useropened, setuserOpened] = useState(false);
-const [userselectedStrategy, setuserSelectedStrategy] = useState(null);
-const [createOpened, setCreateOpened] = useState(false);
+  const [selectedStrategy, setSelectedStrategy] = useState(null);
+  const [useropened, setuserOpened] = useState(false);
+  const [userselectedStrategy, setuserSelectedStrategy] = useState(null);
+  const [createOpened, setCreateOpened] = useState(false);
+  const [allUsers, setAllUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  
+
+const fetchAllUsers = async () => {
+  try {
+    setLoadingUsers(true);
+
+    const result = await apiRequest(
+      "POST",
+      "/api/users/"
+    );
+
+    console.log("All users:", result);
+
+    // Supports either:
+    // { users: [...] }
+    // OR directly [...]
+    const usersList = Array.isArray(result)
+      ? result
+      : result.users || [];
+
+    setAllUsers(usersList);
+
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    setAllUsers([]);
+  } finally {
+    setLoadingUsers(false);
+  }
+};
+
+const userSelectData = allUsers.map((user) => ({
+  value: user.id,
+  label: `${user.fullname || "N/A"} | ${user.email || "N/A"} | ${user.mobile_number || "N/A"}`
+}));
+
 
 const [createForm, setCreateForm] = useState({
   name: "",
@@ -30,7 +67,6 @@ const [createForm, setCreateForm] = useState({
   endingTime: ""
 });
 
-
 const [form, setForm] = useState({
   name: "",
   description: "",
@@ -40,12 +76,62 @@ const [form, setForm] = useState({
   startingTime: "",
   endingTime: "",
   stateId: "",
-  category: ""
+  category: "",
+  isUserFeature: false,
+  users: []
 });
+
+
+
 
 const handleView = (strategy) => {
   setuserSelectedStrategy(strategy);
   setuserOpened(true);
+};
+
+const fetchStrategyUsers = async (userIds = []) => {
+  if (!userIds || userIds.length === 0) {
+    setStrategyUsers([]);
+    return;
+  }
+
+  try {
+    setLoadingStrategyUsers(true);
+
+    const users = await Promise.all(
+      userIds.map(async (userId) => {
+        try {
+          const result = await apiRequest(
+            "GET",
+            `/api/users/${userId}`
+          );
+
+          return {
+            id: userId,
+            fullname: result.fullname || "N/A",
+            email: result.email || "N/A",
+            mobile_number: result.mobile_number || "N/A"
+          };
+        } catch (error) {
+          console.error(`Error fetching user ${userId}:`, error);
+
+          return {
+            id: userId,
+            fullname: "Unknown User",
+            email: "N/A",
+            mobile_number: "N/A"
+          };
+        }
+      })
+    );
+
+    setStrategyUsers(users);
+  } catch (error) {
+    console.error("Error fetching strategy users:", error);
+    setStrategyUsers([]);
+  } finally {
+    setLoadingStrategyUsers(false);
+  }
 };
 
 
@@ -255,11 +341,11 @@ const deleteuserstratergy  = async (id)=>{
 
 
   
-  useEffect(()=>{
-    fetchStratergy();
-    fetchPendingStrategies();
-
-  },[])
+  useEffect(() => {
+  fetchStratergy();
+  fetchPendingStrategies();
+  fetchAllUsers();
+}, []);
 
   
   return (
@@ -469,7 +555,7 @@ const deleteuserstratergy  = async (id)=>{
           onClick={() => {
             setSelectedStrategy(strategy);
 
-            setForm({
+          setForm({
               name: strategy.name || "",
               description: strategy.description || "",
               capitalRequired: strategy.capital_required || "",
@@ -478,8 +564,14 @@ const deleteuserstratergy  = async (id)=>{
               startingTime: strategy.starting_time || "",
               endingTime: strategy.ending_time || "",
               stateId: strategy.state_id || "",
-              category: strategy.category || "others"
+              category: strategy.category || "others",
+              isUserFeature: strategy.is_user_feature || false,
+              users: strategy.users || []
             });
+
+          fetchStrategyUsers(strategy.users || []);
+
+          setOpened(true);
 
             setOpened(true);
           }}
@@ -628,8 +720,12 @@ const deleteuserstratergy  = async (id)=>{
           startingTime: strategy.starting_time || "",
           endingTime: strategy.ending_time || "",
           stateId: strategy.state_id || "",
-          category: strategy.category || "others"
+          category: strategy.category || "others",
+          isUserFeature: strategy.is_user_feature || false,
+          users: strategy.users || []
         });
+
+        fetchStrategyUsers(strategy.users || []);
 
         setOpened(true);
 
@@ -768,6 +864,8 @@ const deleteuserstratergy  = async (id)=>{
 
         
         </Container>
+
+        
         <Modal
   opened={opened}
   onClose={() => setOpened(false)}
@@ -849,6 +947,42 @@ const deleteuserstratergy  = async (id)=>{
         setForm({ ...form, isPaid: e.currentTarget.checked })
       }
     />
+
+    <Switch
+  label="User Specific Strategy"
+  description="Show this strategy only to selected users"
+  checked={form.isUserFeature}
+  onChange={(e) =>
+    setForm({
+      ...form,
+      isUserFeature: e.currentTarget.checked
+    })
+  }
+/>
+
+    {form.isUserFeature && (
+      <MultiSelect
+        label="Select Users"
+        placeholder={
+          loadingUsers
+            ? "Loading users..."
+            : "Select users for this strategy"
+          }
+          searchable
+          clearable
+          data={userSelectData}
+          value={form.users}
+          onChange={(selectedUsers) =>
+          setForm({
+        ...form,
+        users: selectedUsers
+      })
+    }
+    nothingFoundMessage="No users found"
+    disabled={loadingUsers}
+    maxDropdownHeight={300}
+  />
+)}
 
     <Button
       fullWidth
