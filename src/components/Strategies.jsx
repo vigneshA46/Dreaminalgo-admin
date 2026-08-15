@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { MantineProvider, Box, Container, Group, Button, TextInput, Radio, Text, Card, Badge, Anchor, Grid, Stack, Select, MultiSelect } from '@mantine/core';
 import { IconSearch, IconCurrencyRupee } from '@tabler/icons-react';
 import { apiRequest } from './utils/api';
+import { modals } from "@mantine/modals";
 import { Modal, Switch } from "@mantine/core";
 
 
@@ -190,10 +191,21 @@ const fetchPendingStrategies = async () => {
   }
 };
 const activateStrategy = async (id) => {
+  const confirmed = window.confirm(
+    "Are you sure you want to activate this strategy?"
+  );
+
+  if (!confirmed) return;
+
   try {
+    console.log("Activating strategy with ID:", id);
+
     await apiRequest(
       "PATCH",
-      `/api/stratergy/${id}/active`
+      `/api/stratergy/${id}/status/`,
+      {
+        status: "active",
+      }
     );
 
     // Refresh both lists
@@ -202,6 +214,34 @@ const activateStrategy = async (id) => {
 
   } catch (err) {
     console.log("Error activating strategy:", err);
+  }
+};
+
+
+const deactivateStrategy = async (id) => {
+  const confirmed = window.confirm(
+    "Are you sure you want to deactivate this strategy?"
+  );
+
+  if (!confirmed) return;
+
+  try {
+    console.log("Deactivating strategy with ID:", id);
+
+    await apiRequest(
+      "PATCH",
+      `/api/stratergy/${id}/status/`,
+      {
+        status: "pending",
+      }
+    );
+
+    // Refresh both lists
+    fetchStratergy();
+    fetchPendingStrategies();
+
+  } catch (err) {
+    console.log("Error deactivating strategy:", err);
   }
 };
 
