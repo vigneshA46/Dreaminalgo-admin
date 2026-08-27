@@ -24,6 +24,7 @@ import Coupons from './components/coupons';
 import StockSelection from './components/StockSelect';
 import Emergency_exit from './components/Emergency_exit';
 import EmergencyTradeExit from './components/EmergencyTradeExit';
+import Tokenlogs from './components/Tokenlogs';
 
 function App() {
 
@@ -60,6 +61,7 @@ function App() {
           <Route path='select-coupons' element={<StockSelection/>} />
           <Route path='emergency' element={<Emergency_exit/>} />
           <Route path='emergency-trade-exit' element={<EmergencyTradeExit/>} />
+          <Route path='token-logs' element={<Tokenlogs/>} />
 
           
           

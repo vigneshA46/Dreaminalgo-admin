@@ -1,4 +1,4 @@
-import { Avatar, Badge, Box, Card, ScrollArea, SimpleGrid, Stack, Table, Text } from '@mantine/core'
+import { Avatar, Badge, Box, Card, ScrollArea, SimpleGrid, Stack, Table, Text, Textarea } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks';
 import React, { useEffect, useState , useMemo } from 'react'
 import { apiRequest } from './utils/api';
@@ -120,6 +120,7 @@ const [form, setForm] = useState({
   tokens: 0,
   status: "",
   remarks: "",
+  token_note: "",
 });
 
 const handleEditClick = (user) => {
@@ -153,13 +154,22 @@ const handleEditClick = (user) => {
   }, [])
 
 
-
-  const updateuser = async () => {
+const updateuser = async () => {
   try {
+    const currentTokens = Number(selectedUser.tokens);
+    const newTokens = Number(form.tokens);
+
+    const tokenChanged = currentTokens !== newTokens;
+
     const payload = {
       ...form,
-      tokens: String(form.tokens), // ✅ convert to text
+      tokens: String(form.tokens),
     };
+
+    // Only send token_note when tokens actually changed
+    if (!tokenChanged) {
+      delete payload.token_note;
+    }
 
     const res = await apiRequest(
       'PUT',
@@ -167,16 +177,16 @@ const handleEditClick = (user) => {
       payload
     );
 
-    //console.log(res);
-
-    // update UI
     setusers((prev) =>
       prev.map((u) =>
-        u.id === selectedUser.id ? { ...u, ...payload } : u
+        u.id === selectedUser.id
+          ? { ...u, ...payload }
+          : u
       )
     );
 
     setOpened(false);
+
   } catch (err) {
     console.log(err);
   }
@@ -709,6 +719,19 @@ const filteredUsers = useMemo(() => {
     }
     mb="sm"
   />
+
+  <Textarea
+  label="Token Note"
+  placeholder="Reason for token change"
+  value={form.token_note}
+  onChange={(e) =>
+    setForm({
+      ...form,
+      token_note: e.target.value,
+    })
+  }
+  mb="sm"
+/>
   <TextInput
   label="Status"
   value={form.status}

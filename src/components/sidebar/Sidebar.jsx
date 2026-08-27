@@ -49,7 +49,8 @@ const menu = [
   { label: "Settings", icon: IconSettings },
   { label: "Coupons", icon: IconTicket },
   { label: "Stocks", icon: IconTicket },
-  {label:"Emergency Exit", icon: IconEmergencyBed}
+  {label:"Emergency Exit", icon: IconEmergencyBed},
+  {label: "TokenLogs", icon: IconTicket}
 ];
 
 export default function Sidebar({ active, onSelect, mobileOpen, setMobileOpen, collapsed, setCollapsed }) {
@@ -74,7 +75,6 @@ const toggleSidebar = () => {
     />
   )}
   <Box
-    
     className={`${classes.sidebar} 
       ${collapsed ? classes.collapsed : ''} 
       ${mobileOpen ? classes.mobileOpen : ''}`}
