@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MantineProvider, Box, Container, Group, Button, TextInput, Radio, Text, Card, Badge, Anchor, Grid, Stack, Select, MultiSelect } from '@mantine/core';
+import { MantineProvider, Box, Container, Group, Button, TextInput, Radio, Text, Card, Badge, Anchor, Grid, Stack, Select, MultiSelect, NumberInput } from '@mantine/core';
 import { IconSearch, IconCurrencyRupee } from '@tabler/icons-react';
 import { apiRequest } from './utils/api';
 import { modals } from "@mantine/modals";
@@ -13,6 +13,8 @@ const Stratergies = () => {
   const [selectedSort, setSelectedSort] = useState('');
   const [strategies , setstrategies] = useState([])
   const [pendingStrategies, setPendingStrategies] = useState([]);
+
+  const [strategyUsers, setStrategyUsers] = useState([]);
   
   const [mystartergieslist , setmystartergieslist] = useState([]);
   const [opened, setOpened] = useState(false);
@@ -73,6 +75,10 @@ const [form, setForm] = useState({
   description: "",
   capitalRequired: "",
   tokensRequired: "",
+
+  reducetokenonmultiplies: true,
+  reductionmultiplier: 1,
+
   isPaid: false,
   startingTime: "",
   endingTime: "",
@@ -81,8 +87,6 @@ const [form, setForm] = useState({
   isUserFeature: false,
   users: []
 });
-
-
 
 
 const handleView = (strategy) => {
@@ -190,6 +194,7 @@ const fetchPendingStrategies = async () => {
     console.log("Error fetching pending strategies:", err);
   }
 };
+
 const activateStrategy = async (id) => {
   const confirmed = window.confirm(
     "Are you sure you want to activate this strategy?"
@@ -596,17 +601,23 @@ const deleteuserstratergy  = async (id)=>{
             setSelectedStrategy(strategy);
 
           setForm({
-              name: strategy.name || "",
-              description: strategy.description || "",
-              capitalRequired: strategy.capital_required || "",
-              tokensRequired: strategy.tokens_required || "",
-              isPaid: strategy.is_paid || false,
-              startingTime: strategy.starting_time || "",
-              endingTime: strategy.ending_time || "",
-              stateId: strategy.state_id || "",
-              category: strategy.category || "others",
-              isUserFeature: strategy.is_user_feature || false,
-              users: strategy.users || []
+            name: strategy.name || "",
+            description: strategy.description || "",
+            capitalRequired: strategy.capital_required || "",
+            tokensRequired: strategy.tokens_required ?? "",
+
+            // NEW
+            reducetokenonmultiplies: strategy.reducetokenonmultiplies ?? true,
+
+            reductionmultiplier: strategy.reductionmultiplier ?? 1,
+
+            isPaid: strategy.is_paid ?? false,
+            startingTime: strategy.starting_time || "",
+            endingTime: strategy.ending_time || "",
+            stateId: strategy.state_id || "",
+            category: strategy.category || "",
+            isUserFeature: strategy.is_user_feature ?? false,
+            users: strategy.users || []
             });
 
           fetchStrategyUsers(strategy.users || []);
@@ -755,15 +766,21 @@ const deleteuserstratergy  = async (id)=>{
           name: strategy.name || "",
           description: strategy.description || "",
           capitalRequired: strategy.capital_required || "",
-          tokensRequired: strategy.tokens_required || "",
-          isPaid: strategy.is_paid || false,
+          tokensRequired: strategy.tokens_required ?? "",
+
+          // NEW
+          reducetokenonmultiplies: strategy.reducetokenonmultiplies ?? true,
+
+          reductionmultiplier: strategy.reductionmultiplier ?? 1,
+
+          isPaid: strategy.is_paid ?? false,
           startingTime: strategy.starting_time || "",
           endingTime: strategy.ending_time || "",
           stateId: strategy.state_id || "",
-          category: strategy.category || "others",
-          isUserFeature: strategy.is_user_feature || false,
+          category: strategy.category || "",
+          isUserFeature: strategy.is_user_feature ?? false,
           users: strategy.users || []
-        });
+          });
 
         fetchStrategyUsers(strategy.users || []);
 
@@ -942,6 +959,35 @@ const deleteuserstratergy  = async (id)=>{
         setForm({ ...form, tokensRequired: e.target.value })
       }
     />
+
+<Switch
+  label="Reduce Tokens on Multiples"
+  description="Increase token deduction based on deployment multiplier"
+  checked={form.reducetokenonmultiplies}
+  onChange={(e) =>
+    setForm({
+      ...form,
+      reducetokenonmultiplies: e.currentTarget.checked
+    })
+  }
+/>
+
+{form.reducetokenonmultiplies && (
+  <NumberInput
+    label="Reduction Multiplier"
+    description="Number of multipliers in each token reduction group"
+    min={1}
+    step={1}
+    value={form.reductionmultiplier}
+    onChange={(value) =>
+      setForm({
+        ...form,
+        reductionmultiplier: value
+      })
+    }
+  />
+)}
+
     <TextInput
   label="Starting Time"
   type="time"
