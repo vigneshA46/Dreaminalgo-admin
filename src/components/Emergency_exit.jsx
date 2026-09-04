@@ -20,8 +20,6 @@ const Emergency_exit = () => {
   const [exitLoading, setExitLoading] = useState("");
   const navigate = useNavigate();
 
-  
-
   useEffect(() => {
     fetchStrategies();
   }, []);
@@ -49,7 +47,7 @@ const Emergency_exit = () => {
       setExitLoading(strategy.id);
 
       const response = await fetch(
-        "http://127.0.0.1:8000/recover-strategy",
+        "https://dreaminipbackend-production.up.railway.app/recover-strategy",
         {
           method: "POST",
           headers: {
