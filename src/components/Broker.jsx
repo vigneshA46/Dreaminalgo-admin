@@ -1,10 +1,343 @@
-import { Text } from '@mantine/core'
-import React from 'react'
+import {
+  Table,
+  Text,
+  Paper,
+  ScrollArea,
+  Badge,
+  Stack,
+  Loader,
+  Center,
+  TextInput,
+} from "@mantine/core";
+
+import React, { useEffect, useState } from "react";
+import { apiRequest } from "./utils/api";
 
 const Broker = () => {
-  return (
-    <Text>broker</Text>
-  )
-}
+  const [brokers, setBrokers] = useState([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
-export default Broker
+  const fetchallbroekr = async () => {
+    try {
+      setLoading(true);
+
+      const res = await apiRequest(
+        "GET",
+        "/api/broker/all-with-users"
+      );
+
+      console.log(res);
+
+      if (res?.success) {
+        setBrokers(res.brokers || []);
+      } else {
+        setBrokers([]);
+      }
+    } catch (err) {
+      console.error("Failed to fetch brokers:", err);
+      setBrokers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchallbroekr();
+  }, []);
+
+  /*
+    GLOBAL SEARCH
+
+    Searches through the entire broker object.
+
+    This means search can find:
+    - User name
+    - Email
+    - Mobile
+    - User ID
+    - Broker ID
+    - Broker name
+    - Credentials
+    - Status
+    - Tokens
+    - Any other returned API field
+  */
+  const filteredBrokers = brokers.filter((broker) => {
+    if (!search.trim()) {
+      return true;
+    }
+
+    const searchValue = search.toLowerCase().trim();
+
+    return JSON.stringify(broker)
+      .toLowerCase()
+      .includes(searchValue);
+  });
+
+  if (loading) {
+    return (
+      <Center h={300}>
+        <Loader />
+      </Center>
+    );
+  }
+
+  return (
+    <Paper
+      shadow="sm"
+      radius="md"
+      p="md"
+      withBorder
+    >
+      <Stack gap="md">
+
+        {/* HEADER */}
+        <Text fw={700} size="xl">
+          Broker Accounts
+        </Text>
+
+        {/* SEARCH */}
+        <TextInput
+          placeholder="Search name, email, phone, broker, UUID, credentials..."
+          value={search}
+          onChange={(event) =>
+            setSearch(event.currentTarget.value)
+          }
+          size="md"
+        />
+
+        {/* COUNT */}
+        <Text size="sm" c="dimmed">
+          Showing {filteredBrokers.length} of {brokers.length} broker accounts
+        </Text>
+
+        {/* TABLE */}
+        <ScrollArea>
+
+          <Table
+            striped
+            highlightOnHover
+            withTableBorder
+            withColumnBorders
+            verticalSpacing="sm"
+            miw={1500}
+          >
+
+            <Table.Thead>
+              <Table.Tr>
+
+                <Table.Th>#</Table.Th>
+
+                <Table.Th>User ID</Table.Th>
+
+                <Table.Th>Broker ID</Table.Th>
+
+                <Table.Th>User</Table.Th>
+
+                <Table.Th>Email</Table.Th>
+
+                <Table.Th>Mobile</Table.Th>
+
+                <Table.Th>Broker</Table.Th>
+
+                <Table.Th>Broker Status</Table.Th>
+
+                <Table.Th>Credentials</Table.Th>
+
+                <Table.Th>User Status</Table.Th>
+
+                <Table.Th>Tokens</Table.Th>
+
+                <Table.Th>Created At</Table.Th>
+
+              </Table.Tr>
+            </Table.Thead>
+
+            <Table.Tbody>
+
+              {filteredBrokers.length === 0 ? (
+
+                <Table.Tr>
+
+                  <Table.Td colSpan={12}>
+
+                    <Center py="xl">
+
+                      <Text c="dimmed">
+                        {search
+                          ? "No broker accounts match your search"
+                          : "No broker accounts found"}
+                      </Text>
+
+                    </Center>
+
+                  </Table.Td>
+
+                </Table.Tr>
+
+              ) : (
+
+                filteredBrokers.map((broker, index) => (
+
+                  <Table.Tr key={broker.broker_id}>
+
+                    {/* INDEX */}
+                    <Table.Td>
+                      {index + 1}
+                    </Table.Td>
+
+                    {/* USER ID */}
+                    <Table.Td>
+                      <Text
+                        size="xs"
+                        ff="monospace"
+                        style={{
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {broker.user_id || "-"}
+                      </Text>
+                    </Table.Td>
+
+                    {/* BROKER ID */}
+                    <Table.Td>
+                      <Text
+                        size="xs"
+                        ff="monospace"
+                        style={{
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {broker.broker_id || "-"}
+                      </Text>
+                    </Table.Td>
+
+                    {/* USER */}
+                    <Table.Td>
+                      <Text fw={600}>
+                        {broker.user_fullname || "-"}
+                      </Text>
+                    </Table.Td>
+
+                    {/* EMAIL */}
+                    <Table.Td>
+                      {broker.user_email || "-"}
+                    </Table.Td>
+
+                    {/* MOBILE */}
+                    <Table.Td>
+                      {broker.user_mobile || "-"}
+                    </Table.Td>
+
+                    {/* BROKER */}
+                    <Table.Td>
+                      <Text fw={500}>
+                        {broker.broker_name || "-"}
+                      </Text>
+                    </Table.Td>
+
+                    {/* BROKER STATUS */}
+                    <Table.Td>
+                      <Badge
+                        color={
+                          broker.broker_status === "connected"
+                            ? "green"
+                            : "red"
+                        }
+                      >
+                        {broker.broker_status || "Unknown"}
+                      </Badge>
+                    </Table.Td>
+
+                    {/* CREDENTIALS */}
+                    <Table.Td>
+                      <Stack gap={2}>
+
+                        {broker.credentials &&
+                        Object.keys(broker.credentials).length > 0 ? (
+
+                          Object.entries(
+                            broker.credentials
+                          ).map(([key, value]) => (
+
+                            <Text
+                              key={key}
+                              size="xs"
+                              style={{
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              <Text
+                                component="span"
+                                fw={600}
+                              >
+                                {key}:
+                              </Text>{" "}
+
+                              {String(value)}
+
+                            </Text>
+
+                          ))
+
+                        ) : (
+
+                          <Text size="xs" c="dimmed">
+                            No credentials
+                          </Text>
+
+                        )}
+
+                      </Stack>
+                    </Table.Td>
+
+                    {/* USER STATUS */}
+                    <Table.Td>
+                      <Badge
+                        color={
+                          broker.user_isactive
+                            ? "green"
+                            : "red"
+                        }
+                      >
+                        {broker.user_isactive
+                          ? "Active"
+                          : "Inactive"}
+                      </Badge>
+                    </Table.Td>
+
+                    {/* TOKENS */}
+                    <Table.Td>
+                      <Text fw={600}>
+                        {broker.user_tokens ?? 0}
+                      </Text>
+                    </Table.Td>
+
+                    {/* CREATED AT */}
+                    <Table.Td>
+                      {broker.broker_created_at
+                        ? new Date(
+                            broker.broker_created_at
+                          ).toLocaleString()
+                        : "-"}
+                    </Table.Td>
+
+                  </Table.Tr>
+
+                ))
+
+              )}
+
+            </Table.Tbody>
+
+          </Table>
+
+        </ScrollArea>
+
+      </Stack>
+    </Paper>
+  );
+};
+
+export default Broker;
