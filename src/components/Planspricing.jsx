@@ -14,6 +14,7 @@ import {
 import { IconCheck } from "@tabler/icons-react";
 
 const Planandpricing = () => {
+
   const plans = [
     {
       name: "Starter",

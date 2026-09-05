@@ -539,6 +539,9 @@ const filteredUsers = useMemo(() => {
                      <Table.Th style={{ color: '#868e96', fontWeight: 600, fontSize: '14px', padding: '16px',whiteSpace: "nowrap" }}>
                        S.No
                      </Table.Th>
+                     <Table.Th style={{ color: '#868e96', fontWeight: 600, fontSize: '14px', padding: '16px',whiteSpace: "nowrap" }}>
+                       User ID
+                     </Table.Th>
                      <Table.Th style={{ color: '#868e96', fontWeight: 600, fontSize: '14px', padding: '16px' ,whiteSpace: "nowrap"}}>
                        User Name
                      </Table.Th>
@@ -582,6 +585,7 @@ const filteredUsers = useMemo(() => {
     filteredUsers.map((user, index) => (
       <Table.Tr key={user.id}>
         <Table.Td>{index + 1}</Table.Td>
+        <Table.Td>{user.id}</Table.Td>
         <Table.Td>{user.fullname}</Table.Td>
         <Table.Td>{user.email}</Table.Td>
         <Table.Td>

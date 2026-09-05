@@ -47,7 +47,7 @@ const Emergency_exit = () => {
       setExitLoading(strategy.id);
 
       const response = await fetch(
-        "https://dreaminipbackend-production.up.railway.app/recover-strategy",
+        "http://127.0.0.1:8000/recover-strategy",
         {
           method: "POST",
           headers: {
