@@ -25,11 +25,15 @@ import StockSelection from './components/StockSelect';
 import Emergency_exit from './components/Emergency_exit';
 import EmergencyTradeExit from './components/EmergencyTradeExit';
 import Tokenlogs from './components/Tokenlogs';
+import { ModalsProvider } from "@mantine/modals";
+
 
 function App() {
 
   return (
     <MantineProvider>
+          <ModalsProvider>
+
       <Router>
         <Routes>
 
@@ -68,6 +72,7 @@ function App() {
           </Route>
         </Routes>
       </Router>
+      </ModalsProvider>
     </MantineProvider>
   )
 }

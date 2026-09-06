@@ -19,6 +19,7 @@ import {
   IconLogout2,
 } from "@tabler/icons-react";
 import { apiRequest } from "./utils/api";
+import { modals } from "@mantine/modals";
 
 
 export default function EmergencyTradeExit() {
@@ -37,43 +38,135 @@ export default function EmergencyTradeExit() {
     `/api/deployments/userdep/stopdep/${deploymentId}`
   );
 };
-const exitStrategy = (deploymentId) => {
+
+
+
+const exitUserOpenTrades = async (deployment) => {
+  try {
+    // Today's date in YYYY-MM-DD format
+    const today = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(new Date());
+
+    const payload = {
+      user_id: deployment.user_id,
+      strategy_id: deployment.strategy_id,
+      broker_id: deployment.broker_account_id,
+      date: today,
+    };
+
+    console.log("===================================");
+    console.log("Emergency Exit Request");
+    console.log("Payload:", payload);
+
+    const response = await fetch(
+      `https://dreaminipbackend-production.up.railway.app/exit-user-open-trades`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const data = await response.json();
+
+    console.log("Emergency Exit Response:", data);
+
+    if (!response.ok) {
+      throw new Error(
+        data?.detail ||
+        data?.error ||
+        "Failed to exit user open trades"
+      );
+    }
+
+    if (!data.success) {
+      throw new Error(
+        data?.message || "Failed to exit user open trades"
+      );
+    }
+
+    return data;
+
+  } catch (error) {
+    console.error("exitUserOpenTrades:", error);
+    throw error;
+  }
+};
+
+
+
+
+const exitStrategy = async (deployment) => {
+
+  console.log("===================================");
+  console.log("Exit Strategy Triggered");
+  console.log("Deployment:", deployment);
   modals.openConfirmModal({
     title: "Exit Strategy",
     centered: true,
+
     children: (
       <Text size="sm">
-        Are you sure you want to exit this strategy?
+        Are you sure you want to exit this user's open trades?
       </Text>
     ),
+
     labels: {
       confirm: "Exit",
       cancel: "Cancel",
     },
+
     confirmProps: {
       color: "red",
     },
+
     onConfirm: async () => {
       try {
-        await stopDeployment(deploymentId);
+
+        // 1. Exit all open trades in broker
+        //    and update them through Python backend
+        const result = await exitUserOpenTrades(deployment);
+
+        console.log(
+          "User trades exited successfully:",
+          result
+        );
+
+        // 2. Stop the deployment
+        await stopDeployment(deployment.id);
 
         notifications.show({
           title: "Success",
-          message: "Strategy exited successfully",
+          message: "User's open trades exited successfully.",
           color: "green",
         });
 
+        // 3. Refresh today's deployments
         fetchTodayDeployments(selectedStrategy.id);
+
       } catch (err) {
+
+        console.error("Emergency exit failed:", err);
+
         notifications.show({
           title: "Failed",
-          message: "Unable to exit strategy",
+          message:
+            err?.message ||
+            "Unable to exit user's open trades.",
           color: "red",
         });
+
       }
     },
   });
 };
+
 
 
 const exitAllStrategies = () => {
@@ -356,7 +449,7 @@ const fetchTodayDeployments = async (strategyId) => {
               <Button
                 color="red"
                 size="xs"
-                onClick={() => exitStrategy(deployment.id)}
+                onClick={() => exitStrategy(deployment)}
               >
                 Exit
               </Button>
