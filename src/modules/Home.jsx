@@ -42,7 +42,8 @@ export default function Home() {
    "/coupons",
    "/select-coupons",
    "/emergency",
-   "/token-logs"
+   "/token-logs",
+   "/expense-income"
   ];
 
   // detect active index from current URL

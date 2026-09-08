@@ -26,6 +26,7 @@ import Emergency_exit from './components/Emergency_exit';
 import EmergencyTradeExit from './components/EmergencyTradeExit';
 import Tokenlogs from './components/Tokenlogs';
 import { ModalsProvider } from "@mantine/modals";
+import Expenseincome from './components/Expenseincome';
 
 
 function App() {
@@ -66,6 +67,7 @@ function App() {
           <Route path='emergency' element={<Emergency_exit/>} />
           <Route path='emergency-trade-exit' element={<EmergencyTradeExit/>} />
           <Route path='token-logs' element={<Tokenlogs/>} />
+          <Route path='expense-income' element={<Expenseincome/>} />
 
           
           

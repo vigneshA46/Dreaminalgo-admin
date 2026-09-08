@@ -50,7 +50,8 @@ const menu = [
   { label: "Coupons", icon: IconTicket },
   { label: "Stocks", icon: IconTicket },
   {label:"Emergency Exit", icon: IconEmergencyBed},
-  {label: "TokenLogs", icon: IconTicket}
+  {label: "TokenLogs", icon: IconTicket},
+  {label: "Expense/Income", icon: IconCoinRupee}
 ];
 
 export default function Sidebar({ active, onSelect, mobileOpen, setMobileOpen, collapsed, setCollapsed }) {
