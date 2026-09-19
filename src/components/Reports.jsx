@@ -106,8 +106,8 @@ const Reports = () => {
       setUsersLoading(true);
 
       const response = await apiRequest(
-        "GET",
-        "/api/users"
+        "POST",
+        "/api/users/"
       );
 
       console.log("Users Response:", response);
@@ -1019,82 +1019,77 @@ const Reports = () => {
                                           i
                                         ) => (
 
-                                          <Card
-                                            key={i}
-                                            mb="xs"
-                                            p="sm"
-                                            bg="#ffffff"
-                                            radius="md"
-                                            withBorder
-                                          >
+                                          
+                                            <Card
+  key={i}
+  mb="xs"
+  p="sm"
+  bg="#ffffff"
+  radius="md"
+  withBorder
+>
+  {/* STRATEGY NAME */}
+  <Text
+    size="sm"
+    fw={600}
+    c="black"
+  >
+    {d.strategy_name || "Unknown Strategy"}
+  </Text>
 
-                                            <Group
-                                              justify="space-between"
-                                            >
+  {/* DEPLOYMENT TYPE */}
+  <Group
+    justify="space-between"
+    mt={4}
+  >
+    <Text
+      size="xs"
+      c="gray"
+    >
+      {d.type}
+    </Text>
+  </Group>
 
-                                              <Text
-                                                size="xs"
-                                                c="gray"
-                                              >
-                                                {
-                                                  d.type
-                                                }
-                                              </Text>
+  {/* USER / STATUS / MULTIPLIER */}
+  <Group
+    mt={4}
+    gap="xs"
+  >
+    <Text
+      size="xs"
+      c="gray.5"
+    >
+      {d.user?.fullname || "Unknown User"}
+    </Text>
 
-                                            </Group>
+    <Text
+      size="xs"
+      c="gray.6"
+    >
+      • {d.status}
+    </Text>
 
-                                            <Group
-                                              mt={4}
-                                              gap="xs"
-                                            >
+    <Text
+      size="xs"
+      c="gray.6"
+    >
+      • x{d.multiplier}
+    </Text>
+  </Group>
 
-                                              <Text
-                                                size="xs"
-                                                c="gray.5"
-                                              >
-                                                {
-                                                  d.user
-                                                    ?.fullname
-                                                }
-                                              </Text>
+  {/* DEPLOYED TIME */}
+  <Text
+    size="xs"
+    c="gray.6"
+    mt={4}
+  >
+    {d.deployed_at
+      ? new Date(d.deployed_at).toLocaleString()
+      : "-"}
+  </Text>
+                                            </Card>
 
-                                              <Text
-                                                size="xs"
-                                                c="gray.6"
-                                              >
-                                                •{" "}
-                                                {
-                                                  d.status
-                                                }
-                                              </Text>
 
-                                              <Text
-                                                size="xs"
-                                                c="gray.6"
-                                              >
-                                                • x
-                                                {
-                                                  d.multiplier
-                                                }
-                                              </Text>
-
-                                            </Group>
-
-                                            <Text
-                                              size="xs"
-                                              c="gray.6"
-                                              mt={4}
-                                            >
-                                              {
-                                                d.deployed_at
-                                                  ? new Date(
-                                                      d.deployed_at
-                                                    ).toLocaleString()
-                                                  : "-"
-                                              }
-                                            </Text>
-
-                                          </Card>
 
                                         )
                                       )
