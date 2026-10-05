@@ -227,6 +227,51 @@ const deleteUser = async (user) => {
   }
 };
 
+const [customExitLoadingId, setCustomExitLoadingId] = useState(null);
+
+const toggleCustomExit = async (user, enabled) => {
+  if (customExitLoadingId) return;
+
+  try {
+    setCustomExitLoadingId(user.id);
+
+    await apiRequest(
+      "PATCH",
+      "/api/users/custom-exit",
+      {
+        user_id: user.id,
+        action: enabled ? "activate" : "deactivate",
+      }
+    );
+
+    setusers((prev) =>
+      prev.map((u) =>
+        u.id === user.id
+          ? { ...u, iscustomexit: enabled }
+          : u
+      )
+    );
+
+    notifications.show({
+      title: enabled ? "Custom Exit Activated" : "Custom Exit Deactivated",
+      message: `Custom exit ${enabled ? "enabled" : "disabled"} for ${user.fullname}`,
+      color: "green",
+    });
+
+  } catch (err) {
+    console.log(err);
+
+    notifications.show({
+      title: "Update Failed",
+      message: err.message || "Failed to update custom exit",
+      color: "red",
+    });
+
+  } finally {
+    setCustomExitLoadingId(null);
+  }
+};
+
 const filteredUsers = useMemo(() => {
   const query = search.trim().toLowerCase();
 
@@ -564,6 +609,7 @@ const filteredUsers = useMemo(() => {
                      <Table.Th>Change Password</Table.Th>
                      <Table.Th>Status</Table.Th>
                       <Table.Th>Remarks</Table.Th>
+                     <Table.Th style={{ whiteSpace: "nowrap" }}>Custom Exit</Table.Th>
                    </Table.Tr>
                  </Table.Thead>
                  <Table.Tbody>
@@ -630,6 +676,15 @@ const filteredUsers = useMemo(() => {
 </Table.Td>
   <Table.Td>{user.status || "-"}</Table.Td>
   <Table.Td>{user.remarks || "-"}</Table.Td>
+  <Table.Td>
+    <Switch
+      color="dark"
+      checked={!!user.iscustomexit}
+      disabled={customExitLoadingId === user.id}
+      onChange={(e) => toggleCustomExit(user, e.currentTarget.checked)}
+      label={user.iscustomexit ? "Active" : "Inactive"}
+    />
+  </Table.Td>
       </Table.Tr>
     ))
   )}
