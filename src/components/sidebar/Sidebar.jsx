@@ -24,6 +24,7 @@ import {
   IconSchool,
   IconTicket,
   IconEmergencyBed,
+  IconHistory,
 } from "@tabler/icons-react";
 import classes from "./Sidebar.module.css";
 import logowhite from "../../assets/logowhite.png"
@@ -51,7 +52,8 @@ const menu = [
   { label: "Stocks", icon: IconTicket },
   {label:"Emergency Exit", icon: IconEmergencyBed},
   {label: "TokenLogs", icon: IconTicket},
-  {label: "Expense/Income", icon: IconCoinRupee}
+  {label: "Expense/Income", icon: IconCoinRupee},
+  {label: "Backtest", icon: IconHistory}
 ];
 
 export default function Sidebar({ active, onSelect, mobileOpen, setMobileOpen, collapsed, setCollapsed }) {

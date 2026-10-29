@@ -43,11 +43,15 @@ export default function Home() {
    "/select-coupons",
    "/emergency",
    "/token-logs",
-   "/expense-income"
+   "/expense-income",
+   "/backtest"
   ];
 
   // detect active index from current URL
-  const active = routeMap.indexOf(location.pathname);
+  // (sub pages like /backtest/... keep their parent menu highlighted)
+  const active = routeMap.findIndex(
+    (r) => location.pathname === r || (r !== "/" && location.pathname.startsWith(r + "/"))
+  );
 
   const handleSelect = (index) => {
     navigate(routeMap[index]);

@@ -27,6 +27,8 @@ import EmergencyTradeExit from './components/EmergencyTradeExit';
 import Tokenlogs from './components/Tokenlogs';
 import { ModalsProvider } from "@mantine/modals";
 import Expenseincome from './components/Expenseincome';
+import Backtest from './components/backtest/Backtest';
+import BacktestPivotCum from './components/backtest/BacktestPivotCum';
 
 
 function App() {
@@ -68,6 +70,8 @@ function App() {
           <Route path='emergency-trade-exit' element={<EmergencyTradeExit/>} />
           <Route path='token-logs' element={<Tokenlogs/>} />
           <Route path='expense-income' element={<Expenseincome/>} />
+          <Route path='backtest' element={<Backtest/>} />
+          <Route path='backtest/pivot-cumulative-option-buying' element={<BacktestPivotCum/>} />
 
           
           
