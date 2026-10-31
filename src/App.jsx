@@ -29,6 +29,7 @@ import { ModalsProvider } from "@mantine/modals";
 import Expenseincome from './components/Expenseincome';
 import Backtest from './components/backtest/Backtest';
 import BacktestPivotCum from './components/backtest/BacktestPivotCum';
+import BacktestPivotBuffer from './components/backtest/BacktestPivotBuffer';
 
 
 function App() {
@@ -72,6 +73,7 @@ function App() {
           <Route path='expense-income' element={<Expenseincome/>} />
           <Route path='backtest' element={<Backtest/>} />
           <Route path='backtest/pivot-cumulative-option-buying' element={<BacktestPivotCum/>} />
+          <Route path='backtest/nifty-option-pivot-buffer' element={<BacktestPivotBuffer/>} />
 
           
           

@@ -13,6 +13,14 @@ const strategies = [
     tags: ["NIFTY", "Options", "1-min data"],
     path: "/backtest/pivot-cumulative-option-buying",
   },
+  {
+    title: "nifty_option_pivot_buffer",
+    description:
+      "NIFTY CE + PE option buying, all tick based. Pivot touch arms it, entry at pivot + 25% of the gap to the next pivot, " +
+      "target entry + 30% of the gap, SL back at the pivot. 1 lot, same 09:17 selection and strike change.",
+    tags: ["NIFTY", "Options", "1-min data"],
+    path: "/backtest/nifty-option-pivot-buffer",
+  },
 ];
 
 const Backtest = () => {
