@@ -90,6 +90,41 @@ export const ExitCell = ({ t }) => (
   </>
 );
 
+const pivotOrder = ["S3", "S2", "S1", "P", "R1", "R2", "R3"];
+
+/** Trades and P&L by the pivot each trade came from (summary.byPivot). */
+export const PivotPnlPanel = ({ byPivot }) => {
+  const rows = Object.entries(byPivot || {}).sort((a, b) => pivotOrder.indexOf(a[0]) - pivotOrder.indexOf(b[0]));
+  if (!rows.length) return null;
+  return (
+    <Paper withBorder radius="md" p="md">
+      <Text fw={600} mb="sm">
+        P&L by pivot
+      </Text>
+      <Table verticalSpacing="xs" fz="sm" maw={420}>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>Pivot</Table.Th>
+            <Table.Th ta="right">Trades</Table.Th>
+            <Table.Th ta="right">P&L</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
+          {rows.map(([k, v]) => (
+            <Table.Tr key={k}>
+              <Table.Td fw={600}>{k}</Table.Td>
+              <Table.Td ta="right">{v.trades}</Table.Td>
+              <Table.Td ta="right" fw={600} c={pnlColor(v.pnl)}>
+                {inr(v.pnl)}
+              </Table.Td>
+            </Table.Tr>
+          ))}
+        </Table.Tbody>
+      </Table>
+    </Paper>
+  );
+};
+
 // --------------------------------------------------
 // Small pieces
 // --------------------------------------------------

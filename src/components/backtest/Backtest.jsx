@@ -21,6 +21,14 @@ const strategies = [
     tags: ["NIFTY", "Options", "1-min data"],
     path: "/backtest/nifty-option-pivot-buffer",
   },
+  {
+    title: "nifty_option_pivot_fixed_target",
+    description:
+      "NIFTY CE + PE option buying. Same pivot touch and entry as pivot_cumulative (candle close with avg-price rule, " +
+      "or tick at pivot + 8). Fixed +10 point target, SL candle close below the pivot. 1 lot.",
+    tags: ["NIFTY", "Options", "1-min data"],
+    path: "/backtest/nifty-option-pivot-fixed-target",
+  },
 ];
 
 const Backtest = () => {
