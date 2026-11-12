@@ -9,7 +9,7 @@ const strategies = [
     title: "pivot_cumulative_option_buying",
     description:
       "NIFTY CE + PE option buying on previous-day pivot levels (P, R1–R3, S1–S3). " +
-      "Cumulative ₹3,250 side target, lot ladder 2 → 15, strike change outside 170–280, −₹13,000 day stop.",
+      "Cumulative ₹3,250 side target, lots 2 → 15 (+1 lot on every 2nd SL in a row), strike change outside 170–280, −₹13,000 day stop.",
     tags: ["NIFTY", "Options", "1-min data"],
     path: "/backtest/pivot-cumulative-option-buying",
   },
