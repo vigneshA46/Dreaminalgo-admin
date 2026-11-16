@@ -163,9 +163,15 @@ const LegCard = ({ name, leg }) => (
       <Text size="sm">
         Trades <b>{leg.trades}</b>
       </Text>
-      <Text size="sm" c="teal">
-        Targets <b>{leg.targets}</b>
-      </Text>
+      {leg.trails !== undefined ? (
+        <Text size="sm" c="teal">
+          Trail exits <b>{leg.trails}</b>
+        </Text>
+      ) : (
+        <Text size="sm" c="teal">
+          Targets <b>{leg.targets}</b>
+        </Text>
+      )}
       <Text size="sm" c="red">
         SL <b>{leg.stopLosses}</b>
       </Text>

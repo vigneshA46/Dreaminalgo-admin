@@ -29,6 +29,15 @@ const strategies = [
     tags: ["NIFTY", "Options", "1-min data"],
     path: "/backtest/nifty-option-pivot-fixed-target",
   },
+  {
+    title: "nifty_option_level_breakout",
+    description:
+      "NIFTY ATM CE + PE (strike from the 09:15 close, fixed all day). range = prev-day (H − L) × 26.11%, " +
+      "buy above = open + range, targets every range up to T11. 3-min close above buy above → 1 lot, " +
+      "SL entry − 20 until T1, then trail on 3-min close below the last target touched.",
+    tags: ["NIFTY", "Options", "3-min"],
+    path: "/backtest/nifty-option-level-breakout",
+  },
 ];
 
 const Backtest = () => {

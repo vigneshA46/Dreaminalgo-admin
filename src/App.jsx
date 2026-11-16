@@ -31,6 +31,7 @@ import Backtest from './components/backtest/Backtest';
 import BacktestPivotCum from './components/backtest/BacktestPivotCum';
 import BacktestPivotBuffer from './components/backtest/BacktestPivotBuffer';
 import BacktestPivotFixedTarget from './components/backtest/BacktestPivotFixedTarget';
+import BacktestLevelBreakout from './components/backtest/BacktestLevelBreakout';
 
 
 function App() {
@@ -76,6 +77,7 @@ function App() {
           <Route path='backtest/pivot-cumulative-option-buying' element={<BacktestPivotCum/>} />
           <Route path='backtest/nifty-option-pivot-buffer' element={<BacktestPivotBuffer/>} />
           <Route path='backtest/nifty-option-pivot-fixed-target' element={<BacktestPivotFixedTarget/>} />
+          <Route path='backtest/nifty-option-level-breakout' element={<BacktestLevelBreakout/>} />
 
           
           

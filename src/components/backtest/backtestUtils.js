@@ -8,4 +8,4 @@ export const inr = (x) => {
 
 export const pnlColor = (x) => (x > 0 ? "teal" : x < 0 ? "red" : "gray");
 
-export const exitColor = { TARGET: "teal", SL: "red", FORCE: "orange" };
+export const exitColor = { TARGET: "teal", TRAIL: "teal", SL: "red", FORCE: "orange" };
