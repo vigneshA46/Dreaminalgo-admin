@@ -1,7 +1,8 @@
 import React from "react";
-import { Badge, Box, Card, Group, SimpleGrid, Text, ThemeIcon } from "@mantine/core";
-import { IconArrowRight, IconChartCandle } from "@tabler/icons-react";
-import { useNavigate } from "react-router-dom";
+import { Badge, Box, Card, Group, SimpleGrid, Tabs, Text, ThemeIcon } from "@mantine/core";
+import { IconArrowRight, IconChartCandle, IconPlayerPlay, IconUsers } from "@tabler/icons-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import BacktestAccess from "./BacktestAccess";
 
 // one card per strategy that has a backtest API
 const strategies = [
@@ -42,6 +43,8 @@ const strategies = [
 
 const Backtest = () => {
   const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
+  const tab = params.get("tab") === "access" ? "access" : "run";
 
   return (
     <Box p="md">
@@ -49,43 +52,58 @@ const Backtest = () => {
         Backtest
       </Text>
       <Text size="sm" c="dimmed" mb="lg">
-        Pick a strategy to run it on historical Dhan data
+        Run a strategy on historical Dhan data, or choose which users can backtest it
       </Text>
 
-      <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
-        {strategies.map((s) => (
-          <Card
-            key={s.path}
-            withBorder
-            radius="md"
-            padding="lg"
-            style={{ cursor: "pointer" }}
-            onClick={() => navigate(s.path)}
-          >
-            <Group justify="space-between" mb="sm">
-              <ThemeIcon size={42} radius="md" variant="light">
-                <IconChartCandle size={24} />
-              </ThemeIcon>
-              <IconArrowRight size={20} color="gray" />
-            </Group>
+      <Tabs value={tab} onChange={(v) => setParams(v === "access" ? { tab: "access" } : {})}>
+        <Tabs.List mb="lg">
+          <Tabs.Tab value="run" leftSection={<IconPlayerPlay size={16} />}>
+            Run backtest
+          </Tabs.Tab>
+          <Tabs.Tab value="access" leftSection={<IconUsers size={16} />}>
+            User access
+          </Tabs.Tab>
+        </Tabs.List>
 
-            <Text fw={600} mb={6} style={{ wordBreak: "break-word" }}>
-              {s.title}
-            </Text>
-            <Text size="sm" c="dimmed" mb="md">
-              {s.description}
-            </Text>
+        <Tabs.Panel value="run">
+          <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
+            {strategies.map((s) => (
+              <Card
+                key={s.path}
+                withBorder
+                radius="md"
+                padding="lg"
+                style={{ cursor: "pointer" }}
+                onClick={() => navigate(s.path)}
+              >
+                <Group justify="space-between" mb="sm">
+                  <ThemeIcon size={42} radius="md" variant="light">
+                    <IconChartCandle size={24} />
+                  </ThemeIcon>
+                  <IconArrowRight size={20} color="gray" />
+                </Group>
 
-            <Group gap={6}>
-              {s.tags.map((t) => (
-                <Badge key={t} variant="light" size="sm">
-                  {t}
-                </Badge>
-              ))}
-            </Group>
-          </Card>
-        ))}
-      </SimpleGrid>
+                <Text fw={600} mb={6} style={{ wordBreak: "break-word" }}>
+                  {s.title}
+                </Text>
+                <Text size="sm" c="dimmed" mb="md">
+                  {s.description}
+                </Text>
+
+                <Group gap={6}>
+                  {s.tags.map((t) => (
+                    <Badge key={t} variant="light" size="sm">
+                      {t}
+                    </Badge>
+                  ))}
+                </Group>
+              </Card>
+            ))}
+          </SimpleGrid>
+        </Tabs.Panel>
+
+        <Tabs.Panel value="access">{tab === "access" && <BacktestAccess />}</Tabs.Panel>
+      </Tabs>
     </Box>
   );
 };
