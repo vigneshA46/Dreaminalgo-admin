@@ -183,7 +183,9 @@ const LegCard = ({ name, leg }) => (
     </Group>
 
     <Text size="xs" c="dimmed" tt="uppercase" fw={600} mb={4}>
-      Strikes ({leg.strikeChanges} change{leg.strikeChanges === 1 ? "" : "s"})
+      {leg.strikeChanges === undefined
+        ? "Strikes traded"
+        : `Strikes (${leg.strikeChanges} change${leg.strikeChanges === 1 ? "" : "s"})`}
     </Text>
     <Group gap={4} mb="sm">
       {leg.strikes.map((s, i) => (

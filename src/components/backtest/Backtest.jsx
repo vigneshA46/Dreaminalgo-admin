@@ -39,6 +39,22 @@ const strategies = [
     tags: ["NIFTY", "Options", "3-min"],
     path: "/backtest/nifty-option-level-breakout",
   },
+  {
+    title: "nifty_hourly_range_touch",
+    description:
+      "NIFTY hourly High / Low of the first 5 hours, each traded in the next hour. Line touch + 3-min NIFTY close beyond it " +
+      "with avg-price confirmation → ATM CE / PE, 1 lot. SL 3-min close back through the line, cycle limits −₹3,500 / +₹5,000, max 2 entries per cycle.",
+    tags: ["NIFTY", "Options", "1-hour + 3-min"],
+    path: "/backtest/nifty-hourly-range-touch",
+  },
+  {
+    title: "nifty_hourly_range_touch_1m",
+    description:
+      "Same as nifty_hourly_range_touch with 1-min NIFTY candles: line touch + 1-min close beyond it with avg-price confirmation → " +
+      "ATM CE / PE, 1 lot. SL 1-min close back through the line, cycle limits −₹3,500 / +₹5,000, max 2 entries per cycle.",
+    tags: ["NIFTY", "Options", "1-hour + 1-min"],
+    path: "/backtest/nifty-hourly-range-touch-1m",
+  },
 ];
 
 const Backtest = () => {

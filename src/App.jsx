@@ -32,6 +32,8 @@ import BacktestPivotCum from './components/backtest/BacktestPivotCum';
 import BacktestPivotBuffer from './components/backtest/BacktestPivotBuffer';
 import BacktestPivotFixedTarget from './components/backtest/BacktestPivotFixedTarget';
 import BacktestLevelBreakout from './components/backtest/BacktestLevelBreakout';
+import BacktestHourlyRange from './components/backtest/BacktestHourlyRange';
+import BacktestHourlyRange1m from './components/backtest/BacktestHourlyRange1m';
 
 
 function App() {
@@ -78,6 +80,8 @@ function App() {
           <Route path='backtest/nifty-option-pivot-buffer' element={<BacktestPivotBuffer/>} />
           <Route path='backtest/nifty-option-pivot-fixed-target' element={<BacktestPivotFixedTarget/>} />
           <Route path='backtest/nifty-option-level-breakout' element={<BacktestLevelBreakout/>} />
+          <Route path='backtest/nifty-hourly-range-touch' element={<BacktestHourlyRange/>} />
+          <Route path='backtest/nifty-hourly-range-touch-1m' element={<BacktestHourlyRange1m/>} />
 
           
           
