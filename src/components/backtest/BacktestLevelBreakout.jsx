@@ -93,7 +93,7 @@ const config = {
   title: "nifty_option_level_breakout",
   subtitle:
     "ATM from NIFTY 09:15 close. range = prev-day (H − L) × 26.11%, buy above = open + range, T1–T11 every range. " +
-    "3-min close above buy above → buy 1 lot, SL entry − 20 until T1, then trail on 3-min close below the last target touched.",
+    "5-min close above buy above (first entry: above buy above + 13.06%) → buy 1 lot, SL entry − 20 until T1, then trail on 5-min close below the last target touched.",
   endpoint: "/api/backtest/nifty_option_level_breakout",
 
   stats: (day, result) => [
