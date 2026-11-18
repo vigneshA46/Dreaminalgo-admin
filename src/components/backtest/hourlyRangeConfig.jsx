@@ -63,5 +63,5 @@ export const makeHourlyRangeConfig = ({ title, endpoint, candleMinutes }) => ({
     { header: "Cycle P&L", align: "right", render: (t) => <Text size="sm" c={pnlColor(t.cyclePnlAfter)}>{inr(t.cyclePnlAfter)}</Text> },
   ],
 
-  extraPanels: (day) => <HourlyCyclesPanel cycles={day.cycles} />,
+  extraPanels: (day, result) => <HourlyCyclesPanel cycles={day.cycles} params={result.params} />,
 });

@@ -46,6 +46,7 @@ import "@mantine/dates/styles.css";
  *   stats(day, result)   -> [{ label, value, color?, sub? }]   tiles under the date
  *   tradeColumns         -> [{ header, align?, wrap?, render(t) }]  trades table (cells stay on one line unless wrap)
  *   extraPanels?(day, result) -> JSX                            strategy-specific sections
+ *   defaultOptions?, OptionsForm?, optionsValid?  settings sent as body.options (strategies with settings)
  */
 
 const eventColor = {
@@ -324,6 +325,7 @@ const BacktestRunPage = ({ config }) => {
   const [clientId, setClientId] = useState("");
   const [accessToken, setAccessToken] = useState("");
   const [date, setDate] = useState(null);
+  const [options, setOptions] = useState(config.defaultOptions || null);
 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -333,7 +335,8 @@ const BacktestRunPage = ({ config }) => {
   const minDate = dayjs().subtract(5, "year").add(1, "day").format("YYYY-MM-DD");
   const isWeekend = (d) => [0, 6].includes(dayjs(d).day());
 
-  const canRun = clientId.trim() && accessToken.trim() && date && !loading;
+  const optionsOk = !options || !config.optionsValid || config.optionsValid(options);
+  const canRun = clientId.trim() && accessToken.trim() && date && optionsOk && !loading;
 
   const runBacktest = async () => {
     const day = dayjs(date).format("YYYY-MM-DD");
@@ -349,6 +352,7 @@ const BacktestRunPage = ({ config }) => {
         fromDate: day,
         toDate: day,
         includeEvents: true,
+        ...(options ? { options } : {}),
       });
       setResult(res.data);
     } catch (err) {
@@ -419,6 +423,11 @@ const BacktestRunPage = ({ config }) => {
             {loading ? "Running…" : "Run backtest"}
           </Button>
         </SimpleGrid>
+        {config.OptionsForm && options && (
+          <Box mt="md">
+            <config.OptionsForm value={options} onChange={setOptions} disabled={loading} />
+          </Box>
+        )}
         <Text size="xs" c="dimmed" mt="sm">
           Weekdays up to yesterday. Credentials are only sent to the backtest API for this run and are not saved.
         </Text>

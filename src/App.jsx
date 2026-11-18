@@ -34,6 +34,7 @@ import BacktestPivotFixedTarget from './components/backtest/BacktestPivotFixedTa
 import BacktestLevelBreakout from './components/backtest/BacktestLevelBreakout';
 import BacktestHourlyRange from './components/backtest/BacktestHourlyRange';
 import BacktestHourlyRange1m from './components/backtest/BacktestHourlyRange1m';
+import BacktestHourlyRangeCustom from './components/backtest/BacktestHourlyRangeCustom';
 
 
 function App() {
@@ -82,6 +83,7 @@ function App() {
           <Route path='backtest/nifty-option-level-breakout' element={<BacktestLevelBreakout/>} />
           <Route path='backtest/nifty-hourly-range-touch' element={<BacktestHourlyRange/>} />
           <Route path='backtest/nifty-hourly-range-touch-1m' element={<BacktestHourlyRange1m/>} />
+          <Route path='backtest/nifty-hourly-range-touch-custom' element={<BacktestHourlyRangeCustom/>} />
 
           
           

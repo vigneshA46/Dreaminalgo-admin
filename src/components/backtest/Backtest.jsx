@@ -55,6 +55,14 @@ const strategies = [
     tags: ["NIFTY", "Options", "1-hour + 1-min"],
     path: "/backtest/nifty-hourly-range-touch-1m",
   },
+  {
+    title: "nifty_hourly_range_touch_custom",
+    description:
+      "Hourly High / Low touch strategy with your settings: 1 / 3 / 5-min candles, day and cycle SL / profit on or off. " +
+      "Also exits when NIFTY touches the cycle's other line, which stays armed for the next entry. No entry limit.",
+    tags: ["NIFTY", "Options", "Custom settings"],
+    path: "/backtest/nifty-hourly-range-touch-custom",
+  },
 ];
 
 const Backtest = () => {
