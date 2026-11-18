@@ -1,6 +1,6 @@
 import React from "react";
 import { Group, NumberInput, Paper, SegmentedControl, Select, SimpleGrid, Stack, Switch, Text } from "@mantine/core";
-import { HOURLY_LIMITS, HOURLY_STRIKES } from "./hourlyOptions";
+import { HOURLY_LIMITS, HOURLY_STRIKES, touchBufferValid } from "./hourlyOptions";
 
 /** Settings for nifty_hourly_range_touch_custom: candle timeframe, strike + day / cycle SL, profit and per-trade profit. */
 export const HourlyOptionsForm = ({ value, onChange, disabled }) => {
@@ -40,6 +40,27 @@ export const HourlyOptionsForm = ({ value, onChange, disabled }) => {
           />
           <Text size="xs" c="dimmed">
             From the signal candle's ATM. ITM: CE below, PE above.
+          </Text>
+        </Stack>
+
+        <Stack gap={4}>
+          <Text size="sm" fw={500}>
+            Touch buffer
+          </Text>
+          <NumberInput
+            value={value.touchBuffer}
+            onChange={(v) => onChange({ ...value, touchBuffer: v })}
+            min={0}
+            max={100}
+            step={0.5}
+            decimalScale={2}
+            rightSection={<Text size="xs" c="dimmed" pr={28}>pts</Text>}
+            disabled={disabled}
+            aria-label="Touch buffer in NIFTY points"
+            error={touchBufferValid(value.touchBuffer) ? null : "0 to 100 points"}
+          />
+          <Text size="xs" c="dimmed">
+            NIFTY within ± this of a High / Low line counts as a touch (arming and other-line exit).
           </Text>
         </Stack>
 
