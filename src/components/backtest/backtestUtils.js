@@ -13,6 +13,7 @@ export const exitColor = {
   TRAIL: "teal",
   CYCLE_TARGET: "teal",
   DAY_TARGET: "teal",
+  TRADE_TARGET: "teal",
   LINE_TOUCH: "blue",
   SL: "red",
   CYCLE_SL: "red",

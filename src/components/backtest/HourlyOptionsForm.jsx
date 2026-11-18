@@ -1,14 +1,14 @@
 import React from "react";
-import { Group, NumberInput, Paper, SegmentedControl, SimpleGrid, Stack, Switch, Text } from "@mantine/core";
-import { HOURLY_LIMITS } from "./hourlyOptions";
+import { Group, NumberInput, Paper, SegmentedControl, Select, SimpleGrid, Stack, Switch, Text } from "@mantine/core";
+import { HOURLY_LIMITS, HOURLY_STRIKES } from "./hourlyOptions";
 
-/** Settings for nifty_hourly_range_touch_custom: candle timeframe + day / cycle SL and profit. */
+/** Settings for nifty_hourly_range_touch_custom: candle timeframe, strike + day / cycle SL, profit and per-trade profit. */
 export const HourlyOptionsForm = ({ value, onChange, disabled }) => {
   const set = (key, patch) => onChange({ ...value, [key]: { ...value[key], ...patch } });
 
   return (
     <Paper withBorder radius="md" p="sm" bg="var(--mantine-color-gray-0)">
-      <SimpleGrid cols={{ base: 1, sm: 2, lg: 5 }} spacing="md">
+      <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md">
         <Stack gap={4}>
           <Text size="sm" fw={500}>
             Timeframe
@@ -24,6 +24,23 @@ export const HourlyOptionsForm = ({ value, onChange, disabled }) => {
             disabled={disabled}
             fullWidth
           />
+        </Stack>
+
+        <Stack gap={4}>
+          <Text size="sm" fw={500}>
+            Strike
+          </Text>
+          <Select
+            value={value.strike}
+            onChange={(v) => v && onChange({ ...value, strike: v })}
+            data={HOURLY_STRIKES}
+            allowDeselect={false}
+            disabled={disabled}
+            aria-label="Strike at entry"
+          />
+          <Text size="xs" c="dimmed">
+            From the signal candle's ATM. ITM: CE below, PE above.
+          </Text>
         </Stack>
 
         {HOURLY_LIMITS.map(([key, label, hint]) => (

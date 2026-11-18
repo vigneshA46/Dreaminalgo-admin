@@ -35,7 +35,21 @@ export const makeHourlyRangeConfig = ({ title, endpoint, candleMinutes }) => ({
   tradeColumns: [
     { header: "Cycle", render: (t) => <Badge variant="outline" radius="sm">C{t.cycle}</Badge> },
     { header: "Side", render: (t) => <SideBadge side={t.side} /> },
-    { header: "Strike", render: (t) => <Text size="sm" fw={600}>{t.strike}</Text> },
+    {
+      header: "Strike",
+      render: (t) => (
+        <>
+          <Text size="sm" fw={600}>
+            {t.strike}
+          </Text>
+          {t.strikeType && t.strikeType !== "ATM" && (
+            <Text size="xs" c="dimmed">
+              {t.strikeType}
+            </Text>
+          )}
+        </>
+      ),
+    },
     { header: "Entry", render: (t) => <PriceTime price={t.entryPrice} time={t.entryTime} /> },
     { header: "Exit", render: (t) => <PriceTime price={t.exitPrice} time={t.exitTime} /> },
     {
