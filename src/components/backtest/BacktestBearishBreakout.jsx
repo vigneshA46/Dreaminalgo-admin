@@ -8,7 +8,7 @@ const config = {
   title: "nifty_bearish_breakout_option_buying",
   subtitle:
     "CE and PE run independently, each on one strike priced at or just above 200 at 09:30. The latest bearish 15-min candle marks its high; a tick above high + 4 buys 1 lot, " +
-    "SL = low of that 15-min candle, then the stop follows the low of every completed 5-min Heikin Ashi candle (up or down). After an exit a fresh bearish 15-min candle is needed. Square off 15:14.",
+    "SL = low of that 15-min candle, then the stop follows the low − 2 of every completed 5-min Heikin Ashi candle (up or down). After an exit a fresh bearish 15-min candle is needed. Square off 15:14.",
   endpoint: "/api/backtest/nifty_bearish_breakout_option_buying",
 
   stats: (day, result) => [
