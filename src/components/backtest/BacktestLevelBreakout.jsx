@@ -30,9 +30,11 @@ const LevelsTable = ({ side, L, trades }) => {
             <Table.Td fw={600}>Entry</Table.Td>
             <Table.Td ta="right" fw={700} c="blue">
               buy above {L.buyAbove}
+              {L.firstBuyAbove != null && ` (first entry ${L.firstBuyAbove})`}
             </Table.Td>
             <Table.Td ta="right" c="dimmed">
               sell below {L.sellBelow}
+              {L.firstSellBelow != null && ` (${L.firstSellBelow})`}
             </Table.Td>
           </Table.Tr>
           {L.buyTargets.map((v, i) => (

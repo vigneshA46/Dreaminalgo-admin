@@ -63,6 +63,14 @@ const strategies = [
     tags: ["NIFTY", "Options", "Custom settings"],
     path: "/backtest/nifty-hourly-range-touch-custom",
   },
+  {
+    title: "nifty_bearish_breakout_option_buying",
+    description:
+      "NIFTY CE + PE, each on one strike priced at or just above 200 at 09:30. Latest bearish 15-min candle marks its high; a tick above high + 4 buys 1 lot, " +
+      "SL = low of that 15-min candle, then trail on the low of each completed 5-min Heikin Ashi candle. Fresh bearish candle needed after every exit. Square off 15:14.",
+    tags: ["NIFTY", "Options", "15-min + 5-min HA"],
+    path: "/backtest/nifty-bearish-breakout-option-buying",
+  },
 ];
 
 const Backtest = () => {

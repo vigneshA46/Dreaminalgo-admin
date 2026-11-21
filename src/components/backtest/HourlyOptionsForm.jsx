@@ -1,6 +1,6 @@
 import React from "react";
 import { Group, NumberInput, Paper, SegmentedControl, Select, SimpleGrid, Stack, Switch, Text } from "@mantine/core";
-import { HOURLY_LIMITS, HOURLY_STRIKES, touchBufferValid, touchMemoryValid } from "./hourlyOptions";
+import { HOURLY_LIMITS, HOURLY_STRIKES, touchBufferValid } from "./hourlyOptions";
 
 /** Settings for nifty_hourly_range_touch_custom: candle timeframe, strike + day / cycle SL, profit and per-trade profit. */
 export const HourlyOptionsForm = ({ value, onChange, disabled }) => {
@@ -61,27 +61,6 @@ export const HourlyOptionsForm = ({ value, onChange, disabled }) => {
           />
           <Text size="xs" c="dimmed">
             NIFTY within ± this of a High / Low line counts as a touch (arming and other-line exit).
-          </Text>
-        </Stack>
-
-        <Stack gap={4}>
-          <Text size="sm" fw={500}>
-            Touch memory
-          </Text>
-          <NumberInput
-            value={value.touchMemory}
-            onChange={(v) => onChange({ ...value, touchMemory: v })}
-            min={1}
-            max={100}
-            step={1}
-            allowDecimal={false}
-            rightSection={<Text size="xs" c="dimmed" pr={28}>candles</Text>}
-            disabled={disabled}
-            aria-label="Touch memory in candles"
-            error={touchMemoryValid(value.touchMemory) ? null : "1 to 100 candles"}
-          />
-          <Text size="xs" c="dimmed">
-            A touch stays valid for this many candles of the chosen timeframe, also during a trade and after an exit, until an entry uses it.
           </Text>
         </Stack>
 

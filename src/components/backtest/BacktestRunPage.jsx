@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Accordion,
   Alert,
@@ -13,6 +13,7 @@ import {
   Loader,
   Paper,
   PasswordInput,
+  Progress,
   SimpleGrid,
   Stack,
   Table,
@@ -26,6 +27,7 @@ import {
   IconArrowLeft,
   IconArrowRight,
   IconPlayerPlay,
+  IconPlayerStop,
   IconRefresh,
   IconTarget,
   IconTrendingDown,
@@ -40,7 +42,7 @@ import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 
 /*
- * Single-date backtest page shared by every strategy.
+ * Backtest page shared by every strategy (single date; config.dateRange = true adds a To date and per-day dropdowns).
  * Each strategy page passes a config:
  *   title, subtitle, endpoint
  *   stats(day, result)   -> [{ label, value, color?, sub? }]   tiles under the date
@@ -317,6 +319,237 @@ const LogLines = ({ logs }) => (
 );
 
 // --------------------------------------------------
+// One day's stats, legs, P&L curve, trades and strategy panels (used by single-day and range views)
+// --------------------------------------------------
+
+const DayDetails = ({ day, result, config }) => (
+  <Stack gap="lg" miw={0}>
+    <SimpleGrid cols={{ base: 2, sm: 3, lg: 6 }} spacing="md">
+      {config.stats(day, result).map((s) => (
+        <Stat key={s.label} {...s} />
+      ))}
+    </SimpleGrid>
+
+    <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
+      <LegCard name="CE" leg={day.ce} />
+      <LegCard name="PE" leg={day.pe} />
+    </SimpleGrid>
+
+    {day.trades.length > 0 && (
+      <Paper withBorder radius="md" p="md">
+        <Text fw={600} mb="xs">
+          Realized P&L through the day
+        </Text>
+        <PnlCurve trades={day.trades} />
+      </Paper>
+    )}
+
+    <Paper withBorder radius="md" p="md">
+      <Text fw={600} mb="sm">
+        Trades ({day.trades.length})
+      </Text>
+      {day.trades.length === 0 ? (
+        <Text size="sm" c="dimmed">
+          No trades on this day.
+        </Text>
+      ) : (
+        <Table.ScrollContainer minWidth={1100}>
+          <Table striped highlightOnHover verticalSpacing="xs" fz="sm">
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>#</Table.Th>
+                {config.tradeColumns.map((c) => (
+                  <Table.Th key={c.header} ta={c.align}>
+                    {c.header}
+                  </Table.Th>
+                ))}
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {day.trades.map((t, i) => (
+                <Table.Tr key={i}>
+                  <Table.Td>{i + 1}</Table.Td>
+                  {config.tradeColumns.map((c) => (
+                    <Table.Td key={c.header} ta={c.align} style={c.wrap ? undefined : { whiteSpace: "nowrap" }}>
+                      {c.render(t)}
+                    </Table.Td>
+                  ))}
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        </Table.ScrollContainer>
+      )}
+    </Paper>
+
+    {config.extraPanels?.(day, result)}
+  </Stack>
+);
+
+/** Win rate etc. of ONE day, so the per-day tiles of a range run show that day and not the whole range. */
+const dayResult = (day, result) => {
+  const wins = day.trades.filter((t) => t.pnl > 0);
+  const losses = day.trades.filter((t) => t.pnl <= 0);
+  const avg = (a) => (a.length ? Math.round((a.reduce((x, t) => x + t.pnl, 0) / a.length) * 100) / 100 : 0);
+  return {
+    ...result,
+    summary: {
+      ...result.summary,
+      winRatePct: day.trades.length ? Math.round((1000 * wins.length) / day.trades.length) / 10 : 0,
+      avgWin: avg(wins),
+      avgLoss: avg(losses),
+    },
+  };
+};
+
+/** Overall numbers of a multi-day run + each day as a collapsible row headed by its day P&L. */
+const RangeResults = ({ result, config }) => {
+  const sm = result.summary;
+  const days = result.days || [];
+  const tiles = sm
+    ? [
+        { label: "Net P&L", value: inr(sm.netPnl), color: pnlColor(sm.netPnl), sub: `avg ${inr(sm.avgPnlPerDay)} / day` },
+        { label: "CE P&L", value: inr(sm.cePnl), color: pnlColor(sm.cePnl) },
+        { label: "PE P&L", value: inr(sm.pePnl), color: pnlColor(sm.pePnl) },
+        { label: "Days traded", value: sm.daysTraded, sub: `${sm.winDays} green · ${sm.lossDays} red · ${sm.flatDays} flat` },
+        { label: "Trades", value: sm.totalTrades, sub: `${sm.winningTrades} won · ${sm.losingTrades} lost` },
+        { label: "Win rate", value: `${sm.winRatePct}%`, sub: `avg win ${inr(sm.avgWin)} · avg loss ${inr(sm.avgLoss)}` },
+        { label: "Profit factor", value: sm.profitFactor ?? "-" },
+        { label: "Max drawdown", value: inr(sm.maxDrawdown), color: pnlColor(sm.maxDrawdown), sub: `worst losing streak ${sm.longestLosingStreakDays} day(s)` },
+        { label: "Best day", value: inr(sm.bestDay.pnl), color: pnlColor(sm.bestDay.pnl), sub: dayjs(sm.bestDay.date).format("DD MMM") },
+        { label: "Worst day", value: inr(sm.worstDay.pnl), color: pnlColor(sm.worstDay.pnl), sub: dayjs(sm.worstDay.date).format("DD MMM") },
+      ]
+    : [];
+
+  return (
+    <Stack gap="lg" miw={0}>
+      {tiles.length > 0 && (
+        <Paper withBorder radius="md" p="md">
+          <Group justify="space-between" mb="sm">
+            <Text fw={700} size="lg">
+              Overall · {days[0]?.date && dayjs(days[0].date).format("DD MMM")} – {days.length && dayjs(days[days.length - 1].date).format("DD MMM YYYY")}
+            </Text>
+            <Text size="xs" c="dimmed">
+              {result.meta?.apiCalls} Dhan calls · {result.meta?.durationSec}s
+            </Text>
+          </Group>
+          <SimpleGrid cols={{ base: 2, sm: 3, lg: 5 }} spacing="md">
+            {tiles.map((t) => (
+              <Stat key={t.label} {...t} />
+            ))}
+          </SimpleGrid>
+        </Paper>
+      )}
+
+      {result.analysis?.length > 0 && (
+        <Paper withBorder radius="md" p="md">
+          <Text fw={600} mb="sm">
+            Analysis
+          </Text>
+          <List spacing={6} size="sm">
+            {result.analysis.map((a, i) => (
+              <List.Item key={i}>{a}</List.Item>
+            ))}
+          </List>
+        </Paper>
+      )}
+
+      <Stack gap="xs" miw={0}>
+        <Text fw={600}>Days ({days.length})</Text>
+        <Accordion variant="separated" radius="md" chevronPosition="left">
+          {days.map((d) =>
+            d.status === "ok" ? (
+              <Accordion.Item key={d.date} value={d.date}>
+                <Accordion.Control>
+                  <Group justify="space-between" wrap="nowrap" pr="sm">
+                    <Group gap="xs">
+                      <Text fw={600}>{dayjs(d.date).format("DD MMM YYYY, ddd")}</Text>
+                      {d.expiryDay && (
+                        <Badge color="violet" variant="light" size="sm">
+                          Expiry
+                        </Badge>
+                      )}
+                      <Text size="xs" c="dimmed">
+                        {d.totalTrades} trade{d.totalTrades === 1 ? "" : "s"}
+                      </Text>
+                    </Group>
+                    <Text fw={700} c={pnlColor(d.dayPnl)}>
+                      {inr(d.dayPnl)}
+                    </Text>
+                  </Group>
+                </Accordion.Control>
+                <Accordion.Panel>
+                  <DayDetails day={d} result={dayResult(d, result)} config={config} />
+                </Accordion.Panel>
+              </Accordion.Item>
+            ) : (
+              <Paper key={d.date} withBorder radius="md" px="md" py="sm">
+                <Group justify="space-between" wrap="nowrap">
+                  <Text fw={600} c="dimmed">
+                    {dayjs(d.date).format("DD MMM YYYY, ddd")}
+                  </Text>
+                  <Group gap="xs">
+                    <Text size="xs" c="dimmed">
+                      {d.message}
+                    </Text>
+                    <Badge color={d.status === "holiday" ? "yellow" : "red"} variant="light">
+                      {d.status}
+                    </Badge>
+                  </Group>
+                </Group>
+              </Paper>
+            ),
+          )}
+        </Accordion>
+      </Stack>
+
+      {result.errors?.length > 0 && (
+        <Accordion variant="separated" radius="md">
+          <Accordion.Item value="errors">
+            <Accordion.Control>
+              <Text c="red">Errors ({result.errors.length})</Text>
+            </Accordion.Control>
+            <Accordion.Panel>
+              <Code block>{JSON.stringify(result.errors, null, 2)}</Code>
+            </Accordion.Panel>
+          </Accordion.Item>
+        </Accordion>
+      )}
+
+      <Text size="xs" c="dimmed">
+        Lot size {result.params?.lotSize} · gross P&L (no brokerage / taxes / slippage) · fills simulated from 1-minute bars.
+      </Text>
+    </Stack>
+  );
+};
+
+const RangeProgress = ({ progress, onStop, stopping }) => {
+  const total = progress?.total || 0;
+  const done = progress?.done || 0;
+  const pct = total ? Math.round((100 * done) / total) : 0;
+  return (
+    <Paper withBorder radius="md" p="md">
+      <Group justify="space-between" mb="xs" wrap="nowrap">
+        <Group gap="xs">
+          <Loader size={16} />
+          <Text fw={600}>
+            {total ? `Day ${Math.min(done + 1, total)} of ${total}` : "Starting…"}
+            {progress?.date ? ` · simulating ${dayjs(progress.date).format("DD MMM")}` : ""}
+          </Text>
+        </Group>
+        <Button size="xs" variant="light" color="red" leftSection={<IconPlayerStop size={14} />} onClick={onStop} disabled={stopping}>
+          {stopping ? "Stopping…" : "Stop"}
+        </Button>
+      </Group>
+      <Progress value={pct} animated radius="xl" />
+      <Text size="xs" c="dimmed" mt={6}>
+        {done} of {total} days finished{progress?.elapsedSec ? ` · ${progress.elapsedSec}s` : ""}. Finished days appear below as they complete — you can open them while the rest runs.
+      </Text>
+    </Paper>
+  );
+};
+
+// --------------------------------------------------
 // Page
 // --------------------------------------------------
 
@@ -326,6 +559,13 @@ const BacktestRunPage = ({ config }) => {
   const [clientId, setClientId] = useState("");
   const [accessToken, setAccessToken] = useState("");
   const [date, setDate] = useState(null);
+  const [toDate, setToDate] = useState(null);
+  const range = !!config.dateRange;
+  const [progress, setProgress] = useState(null);
+  const [stopped, setStopped] = useState(false);
+  const [stopping, setStopping] = useState(false);
+  const jobRef = useRef(null);
+  const aliveRef = useRef(true);
   const [options, setOptions] = useState(config.defaultOptions || null);
 
   const [loading, setLoading] = useState(false);
@@ -337,22 +577,94 @@ const BacktestRunPage = ({ config }) => {
   const isWeekend = (d) => [0, 6].includes(dayjs(d).day());
 
   const optionsOk = !options || !config.optionsValid || config.optionsValid(options);
-  const canRun = clientId.trim() && accessToken.trim() && date && optionsOk && !loading;
+  const rangeOk = !range || (toDate && !dayjs(toDate).isBefore(dayjs(date), "day"));
+  const canRun = clientId.trim() && accessToken.trim() && date && rangeOk && optionsOk && !loading;
+
+  // date range: start a background job, then poll it; finished days show up while the rest runs
+  const runRange = async (day, last) => {
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    const body = {
+        clientId: clientId.trim(),
+        accessToken: accessToken.trim(),
+        fromDate: day,
+        toDate: last,
+        includeEvents: false,
+        ...(options ? { options } : {}),
+      };
+    const started = await api.post(`${config.endpoint}/start`, body);
+    const id = started.data.jobId;
+    jobRef.current = id;
+    let fails = 0;
+    while (aliveRef.current) {
+      await sleep(2000);
+      let data;
+      try {
+        data = (await api.get(`/api/backtest/jobs/${id}`)).data;
+        fails = 0;
+      } catch (err) {
+        // a few network hiccups are fine, a missing job or a long outage is not
+        if (err.response?.status === 404 || ++fails >= 5) throw err;
+        continue;
+      }
+      if (data.result) setResult(data.result);
+      setProgress({ ...data.progress, elapsedSec: data.elapsedSec });
+      if (data.status === "error") {
+        throw { response: { status: data.error.status, data: { message: data.error.message, errors: data.error.errors, logs: data.error.logs } } };
+      }
+      if (data.status !== "running") {
+        setStopped(data.status === "stopped");
+        break;
+      }
+    }
+    jobRef.current = null;
+  };
+
+  const stopRun = async () => {
+    const id = jobRef.current;
+    if (!id) return;
+    setStopping(true);
+    try {
+      await api.post(`/api/backtest/jobs/${id}/cancel`);
+    } catch {
+      /* the poll will report it */
+    }
+  };
+
+  // leaving the page stops the job, so it does not keep using Dhan calls for nobody
+  useEffect(() => {
+    aliveRef.current = true;
+    return () => {
+      aliveRef.current = false;
+      const id = jobRef.current;
+      if (id) {
+        const stop = (id) => api.post(`/api/backtest/jobs/${id}/cancel`);
+        stop(id).catch(() => {});
+      }
+    };
+  }, []);
 
   const runBacktest = async () => {
     const day = dayjs(date).format("YYYY-MM-DD");
+    const last = range ? dayjs(toDate).format("YYYY-MM-DD") : day;
     setLoading(true);
     setError(null);
     setResult(null);
+    setProgress(null);
+    setStopped(false);
+    setStopping(false);
     try {
+      if (range) {
+        await runRange(day, last);
+        return;
+      }
       // axios instance directly (not apiRequest): a 401 here means the DHAN token
       // is bad, it must not trigger the admin session refresh / logout
       const res = await api.post(config.endpoint, {
         clientId: clientId.trim(),
         accessToken: accessToken.trim(),
         fromDate: day,
-        toDate: day,
-        includeEvents: true,
+        toDate: last,
+        includeEvents: !range,
         ...(options ? { options } : {}),
       });
       setResult(res.data);
@@ -373,7 +685,7 @@ const BacktestRunPage = ({ config }) => {
   const day = result?.days?.find((d) => d.status === "ok") || result?.days?.[0];
 
   return (
-    <Box p="md" maw={1300}>
+    <Box p="md" maw={1300} style={{ width: 0, minWidth: "100%" }}>
       {/* Header */}
       <Anchor size="sm" onClick={() => navigate("/backtest")} mb="xs" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
         <IconArrowLeft size={14} /> Backtest
@@ -387,7 +699,7 @@ const BacktestRunPage = ({ config }) => {
 
       {/* Inputs */}
       <Paper withBorder radius="md" p="md" mb="lg">
-        <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md">
+        <SimpleGrid cols={{ base: 1, sm: 2, lg: range ? 5 : 4 }} spacing="md">
           <TextInput
             label="Dhan Client ID"
             placeholder="1100xxxxxx"
@@ -403,7 +715,7 @@ const BacktestRunPage = ({ config }) => {
             required
           />
           <DateInput
-            label="Date"
+            label={range ? "From date" : "Date"}
             placeholder="Pick a trading day"
             value={date}
             onChange={setDate}
@@ -415,6 +727,21 @@ const BacktestRunPage = ({ config }) => {
             required
             clearable
           />
+          {range && (
+            <DateInput
+              label="To date"
+              placeholder="Pick a trading day"
+              value={toDate}
+              onChange={setToDate}
+              valueFormat="DD MMM YYYY (ddd)"
+              defaultDate={date || yesterday}
+              minDate={date ? dayjs(date).format("YYYY-MM-DD") : minDate}
+              maxDate={yesterday}
+              excludeDate={isWeekend}
+              required
+              clearable
+            />
+          )}
           <Button
             mt={{ base: 0, lg: 25 }}
             leftSection={loading ? <Loader size={16} color="white" /> : <IconPlayerPlay size={16} />}
@@ -430,21 +757,27 @@ const BacktestRunPage = ({ config }) => {
           </Box>
         )}
         <Text size="xs" c="dimmed" mt="sm">
-          Weekdays up to yesterday. Credentials are only sent to the backtest API for this run and are not saved.
+          Weekdays up to yesterday{range ? ", up to 92 days per run" : ""}. Credentials are only sent to the backtest API for this run and are not saved.
         </Text>
       </Paper>
 
       {/* Loading */}
-      {loading && (
+      {loading && !range && (
         <Paper withBorder radius="md" p="xl" mb="lg">
           <Stack align="center" gap="xs">
             <Loader />
-            <Text fw={500}>Downloading option data from Dhan and simulating the day…</Text>
+            <Text fw={500}>{range ? "Downloading option data from Dhan and simulating each day…" : "Downloading option data from Dhan and simulating the day…"}</Text>
             <Text size="sm" c="dimmed">
-              Usually 10–30 seconds (about 42–126 Dhan API calls)
+              {range ? "About 20–40 seconds per trading day, so a month takes several minutes — keep this tab open" : "Usually 10–30 seconds (about 42–126 Dhan API calls)"}
             </Text>
           </Stack>
         </Paper>
+      )}
+
+      {loading && range && (
+        <Box mb="lg">
+          <RangeProgress progress={progress} onStop={stopRun} stopping={stopping} />
+        </Box>
       )}
 
       {/* Request error */}
@@ -472,19 +805,27 @@ const BacktestRunPage = ({ config }) => {
       )}
 
       {/* Day not traded (holiday / skipped / data error) */}
-      {result && day && day.status !== "ok" && (
+      {!range && result && day && day.status !== "ok" && (
         <Alert color={day.status === "holiday" ? "yellow" : "red"} radius="md" mb="lg" icon={<IconAlertCircle />} title={`${day.date} (${day.day}) — ${day.status}`}>
           {day.message}
         </Alert>
       )}
-      {result && !day && (
+      {!range && result && !day && (
         <Alert color="yellow" radius="md" mb="lg" icon={<IconAlertCircle />} title="No trading day in this selection">
           The selected date returned no data.
         </Alert>
       )}
 
       {/* Result */}
-      {result && day?.status === "ok" && (
+      {range && stopped && !loading && (
+        <Alert color="yellow" radius="md" mb="lg" icon={<IconAlertCircle />} title="Stopped">
+          Showing the {result?.days?.length ?? 0} day(s) that finished before the run was stopped.
+        </Alert>
+      )}
+
+      {range && result && <RangeResults result={result} config={config} />}
+
+      {!range && result && day?.status === "ok" && (
         <Stack gap="lg">
           <Group justify="space-between">
             <Group gap="xs">
@@ -505,70 +846,7 @@ const BacktestRunPage = ({ config }) => {
             </Text>
           </Group>
 
-          {/* Stats */}
-          <SimpleGrid cols={{ base: 2, sm: 3, lg: 6 }} spacing="md">
-            {config.stats(day, result).map((s) => (
-              <Stat key={s.label} {...s} />
-            ))}
-          </SimpleGrid>
-
-          {/* Legs */}
-          <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
-            <LegCard name="CE" leg={day.ce} />
-            <LegCard name="PE" leg={day.pe} />
-          </SimpleGrid>
-
-          {/* P&L curve */}
-          {day.trades.length > 0 && (
-            <Paper withBorder radius="md" p="md">
-              <Text fw={600} mb="xs">
-                Realized P&L through the day
-              </Text>
-              <PnlCurve trades={day.trades} />
-            </Paper>
-          )}
-
-          {/* Trades */}
-          <Paper withBorder radius="md" p="md">
-            <Text fw={600} mb="sm">
-              Trades ({day.trades.length})
-            </Text>
-            {day.trades.length === 0 ? (
-              <Text size="sm" c="dimmed">
-                No trades on this day.
-              </Text>
-            ) : (
-              <Table.ScrollContainer minWidth={1100}>
-                <Table striped highlightOnHover verticalSpacing="xs" fz="sm">
-                  <Table.Thead>
-                    <Table.Tr>
-                      <Table.Th>#</Table.Th>
-                      {config.tradeColumns.map((c) => (
-                        <Table.Th key={c.header} ta={c.align}>
-                          {c.header}
-                        </Table.Th>
-                      ))}
-                    </Table.Tr>
-                  </Table.Thead>
-                  <Table.Tbody>
-                    {day.trades.map((t, i) => (
-                      <Table.Tr key={i}>
-                        <Table.Td>{i + 1}</Table.Td>
-                        {config.tradeColumns.map((c) => (
-                          <Table.Td key={c.header} ta={c.align} style={c.wrap ? undefined : { whiteSpace: "nowrap" }}>
-                            {c.render(t)}
-                          </Table.Td>
-                        ))}
-                      </Table.Tr>
-                    ))}
-                  </Table.Tbody>
-                </Table>
-              </Table.ScrollContainer>
-            )}
-          </Paper>
-
-          {/* Strategy-specific sections */}
-          {config.extraPanels?.(day, result)}
+          <DayDetails day={day} result={result} config={config} />
 
           {/* Analysis */}
           {result.analysis?.length > 0 && (
