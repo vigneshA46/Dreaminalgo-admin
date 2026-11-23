@@ -15,6 +15,7 @@ export const exitColor = {
   DAY_TARGET: "teal",
   TRADE_TARGET: "teal",
   LINE_TOUCH: "blue",
+  FLIP: "blue",
   SL: "red",
   CYCLE_SL: "red",
   DAY_SL: "red",

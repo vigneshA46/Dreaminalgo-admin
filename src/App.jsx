@@ -36,6 +36,7 @@ import BacktestHourlyRange from './components/backtest/BacktestHourlyRange';
 import BacktestHourlyRange1m from './components/backtest/BacktestHourlyRange1m';
 import BacktestHourlyRangeCustom from './components/backtest/BacktestHourlyRangeCustom';
 import BacktestBearishBreakout from './components/backtest/BacktestBearishBreakout';
+import BacktestHullMa from './components/backtest/BacktestHullMa';
 
 
 function App() {
@@ -86,6 +87,7 @@ function App() {
           <Route path='backtest/nifty-hourly-range-touch-1m' element={<BacktestHourlyRange1m/>} />
           <Route path='backtest/nifty-hourly-range-touch-custom' element={<BacktestHourlyRangeCustom/>} />
           <Route path='backtest/nifty-bearish-breakout-option-buying' element={<BacktestBearishBreakout/>} />
+          <Route path='backtest/nifty-hull-ma-option-buying' element={<BacktestHullMa/>} />
 
           
           

@@ -70,7 +70,15 @@ const strategies = [
       "SL = low of that 15-min candle, then trail on the low − 2 of each completed 5-min Heikin Ashi candle. Fresh bearish candle needed after every exit. Square off 15:14.",
     tags: ["NIFTY", "Options", "15-min + 5-min HA"],
     path: "/backtest/nifty-bearish-breakout-option-buying",
+  },  {
+    title: "nifty_hull_ma_option_buying",
+    description:
+      "NIFTY Hull MA (24) on 1 / 3 / 5 / 15-min candles. From 09:30 every colour change is a signal: green buys CE, red buys PE (ATM or ITM1–ITM5), the other side is closed. " +
+      "1 lot, optional day MTM target and day MTM SL, square off 15:14.",
+    tags: ["NIFTY", "Options", "Hull MA 24"],
+    path: "/backtest/nifty-hull-ma-option-buying",
   },
+
 ];
 
 const Backtest = () => {
