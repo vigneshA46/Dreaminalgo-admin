@@ -34,9 +34,9 @@ const strategies = [
     title: "nifty_option_level_breakout",
     description:
       "NIFTY ATM CE + PE (strike from the 09:15 close, fixed all day). range = prev-day (H − L) × 26.11%, " +
-      "buy above = open + range, targets every range up to T11. 3-min close above buy above → 1 lot, " +
-      "SL entry − 20 until T1, then trail on 3-min close below the last target touched.",
-    tags: ["NIFTY", "Options", "3-min"],
+      "buy above = open + range, targets every range up to T11. 5-min close above buy above → 1 lot. " +
+      "The only exit is the Supertrend (10, 3) of the option's 5-min chart turning sell (square off 15:14).",
+    tags: ["NIFTY", "Options", "5-min + Supertrend"],
     path: "/backtest/nifty-option-level-breakout",
   },
   {
