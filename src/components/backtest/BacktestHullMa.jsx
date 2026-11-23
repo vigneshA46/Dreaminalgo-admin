@@ -10,8 +10,9 @@ const config = {
   title: "nifty_hull_ma_option_buying",
   subtitle:
     "Hull MA 24 on NIFTY candles (your timeframe). The colour at 09:30 is the starting colour; every later candle close with a new colour is a signal — " +
-    "green buys CE, red buys PE (ATM or ITM1–ITM5 from that candle's close), and the other side is closed. 1 lot, optional day MTM target and day MTM SL, square off 15:14.",
+    "green buys CE, red buys PE (ATM or ITM1–ITM5 from that candle's close), and the other side is closed. 1 lot, optional day MTM target and day MTM SL, square off 15:14. Pick one date or a range; a range shows overall analysis with one dropdown per day.",
   endpoint: "/api/backtest/nifty_hull_ma_option_buying",
+  dateRange: true,
   defaultOptions: HULL_DEFAULT_OPTIONS,
   OptionsForm: HullOptionsForm,
   optionsValid: hullOptionsValid,
