@@ -5,6 +5,7 @@ import {
   Badge,
   Button,
   Center,
+  Checkbox,
   Group,
   Loader,
   Modal,
@@ -53,6 +54,8 @@ const ManageUsersModal = ({ strategy, onClose, onChanged }) => {
   const [searching, setSearching] = useState(false);
   const [busy, setBusy] = useState(null);
   const [error, setError] = useState(null);
+  // rights given to a user when "Allow" is clicked (run = may run the backtest, read = sees saved backtests, write = saves its runs)
+  const [newPerms, setNewPerms] = useState({ can_run: true, can_read: false, can_write: false });
 
   const loadUsers = useCallback(async () => {
     try {
@@ -92,9 +95,22 @@ const ManageUsersModal = ({ strategy, onClose, onChanged }) => {
     setBusy(user.id);
     setError(null);
     try {
-      await call({ method: "post", url: `${BASE}/strategies/${strategy.key}/users`, data: { userIds: [user.id] } });
+      await call({ method: "post", url: `${BASE}/strategies/${strategy.key}/users`, data: { userIds: [user.id], ...newPerms } });
       await loadUsers();
       onChanged();
+    } catch (err) {
+      setError(errMsg(err));
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const setPerm = async (user, key, value) => {
+    setBusy(user.id);
+    setError(null);
+    try {
+      await call({ method: "patch", url: `${BASE}/strategies/${strategy.key}/users/${user.id}`, data: { [key]: value } });
+      setUsers((list) => list.map((x) => (x.id === user.id ? { ...x, [key]: value } : x)));
     } catch (err) {
       setError(errMsg(err));
     } finally {
@@ -135,6 +151,15 @@ const ManageUsersModal = ({ strategy, onClose, onChanged }) => {
           value={query}
           onChange={(e) => setQuery(e.currentTarget.value)}
         />
+
+        <Group gap="lg">
+          <Text size="sm" fw={500}>
+            New users get:
+          </Text>
+          <Checkbox label="Run" checked={newPerms.can_run} onChange={(e) => setNewPerms({ ...newPerms, can_run: e.currentTarget.checked })} />
+          <Checkbox label="Read saved" checked={newPerms.can_read} onChange={(e) => setNewPerms({ ...newPerms, can_read: e.currentTarget.checked })} />
+          <Checkbox label="Write (save runs)" checked={newPerms.can_write} onChange={(e) => setNewPerms({ ...newPerms, can_write: e.currentTarget.checked })} />
+        </Group>
 
         {query.trim().length >= 2 && !searching && results.length === 0 && (
           <Text size="sm" c="dimmed">
@@ -187,13 +212,16 @@ const ManageUsersModal = ({ strategy, onClose, onChanged }) => {
               Nobody has access yet. Search above to add users.
             </Text>
           ) : (
-            <Table.ScrollContainer minWidth={600}>
+            <Table.ScrollContainer minWidth={760}>
               <Table verticalSpacing="xs" fz="sm" striped>
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>Name</Table.Th>
                     <Table.Th>Email</Table.Th>
                     <Table.Th>Mobile</Table.Th>
+                    <Table.Th ta="center">Run</Table.Th>
+                    <Table.Th ta="center">Read</Table.Th>
+                    <Table.Th ta="center">Write</Table.Th>
                     <Table.Th>Allowed on</Table.Th>
                     <Table.Th />
                   </Table.Tr>
@@ -204,6 +232,23 @@ const ManageUsersModal = ({ strategy, onClose, onChanged }) => {
                       <Table.Td fw={600}>{u.fullname || "No name"}</Table.Td>
                       <Table.Td>{u.email}</Table.Td>
                       <Table.Td>{u.mobile_number || "-"}</Table.Td>
+                      {[
+                        ["can_run", "Run backtests"],
+                        ["can_read", "See saved backtests"],
+                        ["can_write", "Save their backtest runs"],
+                      ].map(([k, label]) => (
+                        <Table.Td key={k} ta="center">
+                          <Tooltip label={label}>
+                            <Switch
+                              size="sm"
+                              checked={!!u[k]}
+                              disabled={busy === u.id}
+                              onChange={(e) => setPerm(u, k, e.currentTarget.checked)}
+                              aria-label={`${label} for ${u.fullname || u.email}`}
+                            />
+                          </Tooltip>
+                        </Table.Td>
+                      ))}
                       <Table.Td>{dayjs(u.granted_at).format("DD MMM YYYY")}</Table.Td>
                       <Table.Td ta="right">
                         <Tooltip label="Remove access">
