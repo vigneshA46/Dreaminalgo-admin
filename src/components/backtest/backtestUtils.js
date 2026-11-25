@@ -16,6 +16,7 @@ export const exitColor = {
   TRADE_TARGET: "teal",
   LINE_TOUCH: "blue",
   FLIP: "blue",
+  REVERSE_CROSS: "blue",
   SUPERTREND: "blue",
   SL: "red",
   CYCLE_SL: "red",

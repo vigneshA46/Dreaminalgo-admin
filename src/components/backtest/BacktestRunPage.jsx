@@ -561,6 +561,8 @@ const BacktestRunPage = ({ config }) => {
   const [date, setDate] = useState(null);
   const [toDate, setToDate] = useState(null);
   const range = !!config.dateRange;
+  // what the LAST run was: a date range (background job, day dropdowns) or one day (full day view)
+  const [ranAsRange, setRanAsRange] = useState(false);
   const [progress, setProgress] = useState(null);
   const [stopped, setStopped] = useState(false);
   const [stopping, setStopping] = useState(false);
@@ -577,7 +579,7 @@ const BacktestRunPage = ({ config }) => {
   const isWeekend = (d) => [0, 6].includes(dayjs(d).day());
 
   const optionsOk = !options || !config.optionsValid || config.optionsValid(options);
-  const rangeOk = !range || (toDate && !dayjs(toDate).isBefore(dayjs(date), "day"));
+  const rangeOk = !range || !toDate || !dayjs(toDate).isBefore(dayjs(date), "day"); // no To date = one day
   const canRun = clientId.trim() && accessToken.trim() && date && rangeOk && optionsOk && !loading;
 
   // date range: start a background job, then poll it; finished days show up while the rest runs
@@ -645,7 +647,9 @@ const BacktestRunPage = ({ config }) => {
 
   const runBacktest = async () => {
     const day = dayjs(date).format("YYYY-MM-DD");
-    const last = range ? dayjs(toDate).format("YYYY-MM-DD") : day;
+    const last = range && toDate ? dayjs(toDate).format("YYYY-MM-DD") : day;
+    const asRange = range && last !== day;
+    setRanAsRange(asRange);
     setLoading(true);
     setError(null);
     setResult(null);
@@ -653,7 +657,7 @@ const BacktestRunPage = ({ config }) => {
     setStopped(false);
     setStopping(false);
     try {
-      if (range) {
+      if (asRange) {
         await runRange(day, last);
         return;
       }
@@ -664,7 +668,7 @@ const BacktestRunPage = ({ config }) => {
         accessToken: accessToken.trim(),
         fromDate: day,
         toDate: last,
-        includeEvents: !range,
+        includeEvents: true,
         ...(options ? { options } : {}),
       });
       setResult(res.data);
@@ -738,7 +742,6 @@ const BacktestRunPage = ({ config }) => {
               minDate={date ? dayjs(date).format("YYYY-MM-DD") : minDate}
               maxDate={yesterday}
               excludeDate={isWeekend}
-              required
               clearable
             />
           )}
@@ -757,24 +760,24 @@ const BacktestRunPage = ({ config }) => {
           </Box>
         )}
         <Text size="xs" c="dimmed" mt="sm">
-          Weekdays up to yesterday{range ? ", up to 92 days per run" : ""}. Credentials are only sent to the backtest API for this run and are not saved.
+          Weekdays up to yesterday{range ? ", up to 92 days per run; leave To date empty for one day with full details (candles, event timeline)" : ""}. Credentials are only sent to the backtest API for this run and are not saved.
         </Text>
       </Paper>
 
       {/* Loading */}
-      {loading && !range && (
+      {loading && !ranAsRange && (
         <Paper withBorder radius="md" p="xl" mb="lg">
           <Stack align="center" gap="xs">
             <Loader />
-            <Text fw={500}>{range ? "Downloading option data from Dhan and simulating each day…" : "Downloading option data from Dhan and simulating the day…"}</Text>
+            <Text fw={500}>Downloading option data from Dhan and simulating the day…</Text>
             <Text size="sm" c="dimmed">
-              {range ? "About 20–40 seconds per trading day, so a month takes several minutes — keep this tab open" : "Usually 10–30 seconds (about 42–126 Dhan API calls)"}
+              Usually 10–30 seconds (about 42–126 Dhan API calls)
             </Text>
           </Stack>
         </Paper>
       )}
 
-      {loading && range && (
+      {loading && ranAsRange && (
         <Box mb="lg">
           <RangeProgress progress={progress} onStop={stopRun} stopping={stopping} />
         </Box>
@@ -805,27 +808,27 @@ const BacktestRunPage = ({ config }) => {
       )}
 
       {/* Day not traded (holiday / skipped / data error) */}
-      {!range && result && day && day.status !== "ok" && (
+      {!ranAsRange && result && day && day.status !== "ok" && (
         <Alert color={day.status === "holiday" ? "yellow" : "red"} radius="md" mb="lg" icon={<IconAlertCircle />} title={`${day.date} (${day.day}) — ${day.status}`}>
           {day.message}
         </Alert>
       )}
-      {!range && result && !day && (
+      {!ranAsRange && result && !day && (
         <Alert color="yellow" radius="md" mb="lg" icon={<IconAlertCircle />} title="No trading day in this selection">
           The selected date returned no data.
         </Alert>
       )}
 
       {/* Result */}
-      {range && stopped && !loading && (
+      {ranAsRange && stopped && !loading && (
         <Alert color="yellow" radius="md" mb="lg" icon={<IconAlertCircle />} title="Stopped">
           Showing the {result?.days?.length ?? 0} day(s) that finished before the run was stopped.
         </Alert>
       )}
 
-      {range && result && <RangeResults result={result} config={config} />}
+      {ranAsRange && result && <RangeResults result={result} config={config} />}
 
-      {!range && result && day?.status === "ok" && (
+      {!ranAsRange && result && day?.status === "ok" && (
         <Stack gap="lg">
           <Group justify="space-between">
             <Group gap="xs">

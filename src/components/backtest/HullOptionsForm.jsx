@@ -3,7 +3,7 @@ import { Group, NumberInput, Paper, SegmentedControl, Select, SimpleGrid, Stack,
 import { HULL_LIMITS, HULL_STRIKES, HULL_TIMEFRAMES } from "./hullOptions";
 
 /** Settings for nifty_hull_ma_option_buying: candle timeframe, strike, day MTM target and day MTM SL. */
-export const HullOptionsForm = ({ value, onChange, disabled }) => {
+export const HullOptionsForm = ({ value, onChange, disabled, strikes = HULL_STRIKES, timeframeHint = "NIFTY candles the Hull MA 24 is drawn on." }) => {
   const set = (key, patch) => onChange({ ...value, [key]: { ...value[key], ...patch } });
 
   return (
@@ -21,7 +21,7 @@ export const HullOptionsForm = ({ value, onChange, disabled }) => {
             fullWidth
           />
           <Text size="xs" c="dimmed">
-            NIFTY candles the Hull MA 24 is drawn on.
+            {timeframeHint}
           </Text>
         </Stack>
 
@@ -32,7 +32,7 @@ export const HullOptionsForm = ({ value, onChange, disabled }) => {
           <Select
             value={value.strike}
             onChange={(v) => v && onChange({ ...value, strike: v })}
-            data={HULL_STRIKES}
+            data={strikes}
             allowDeselect={false}
             disabled={disabled}
             aria-label="Strike at entry"

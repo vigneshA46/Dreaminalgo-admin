@@ -37,6 +37,9 @@ import BacktestHourlyRange1m from './components/backtest/BacktestHourlyRange1m';
 import BacktestHourlyRangeCustom from './components/backtest/BacktestHourlyRangeCustom';
 import BacktestBearishBreakout from './components/backtest/BacktestBearishBreakout';
 import BacktestHullMa from './components/backtest/BacktestHullMa';
+import BacktestEmaRetest from './components/backtest/BacktestEmaRetest';
+import BacktestEmaSupertrend from './components/backtest/BacktestEmaSupertrend';
+import BacktestEmaSupertrendRejection from './components/backtest/BacktestEmaSupertrendRejection';
 
 
 function App() {
@@ -88,6 +91,9 @@ function App() {
           <Route path='backtest/nifty-hourly-range-touch-custom' element={<BacktestHourlyRangeCustom/>} />
           <Route path='backtest/nifty-bearish-breakout-option-buying' element={<BacktestBearishBreakout/>} />
           <Route path='backtest/nifty-hull-ma-option-buying' element={<BacktestHullMa/>} />
+          <Route path='backtest/nifty-ema-crossover-retest-option-buying' element={<BacktestEmaRetest/>} />
+          <Route path='backtest/nifty-ema-supertrend-option-buying' element={<BacktestEmaSupertrend/>} />
+          <Route path='backtest/nifty-ema-supertrend-rejection-option-buying' element={<BacktestEmaSupertrendRejection/>} />
 
           
           

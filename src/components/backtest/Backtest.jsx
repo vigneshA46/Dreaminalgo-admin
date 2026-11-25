@@ -77,7 +77,31 @@ const strategies = [
       "1 lot, optional day MTM target and day MTM SL, square off 15:14.",
     tags: ["NIFTY", "Options", "Hull MA 24"],
     path: "/backtest/nifty-hull-ma-option-buying",
+  },  {
+    title: "nifty_ema_crossover_retest_option_buying",
+    description:
+      "NIFTY EMA 5 / EMA 10 crossover with retest on 1 / 3 / 5 / 15-min candles. Crossover → a candle closes beyond EMA 10 → a candle retests EMA 5 → buy CE (bullish) or PE (bearish), ATM or ITM1–ITM4. " +
+      "Exit on the reverse crossover. 1 lot, optional day MTM target and day MTM SL, square off 15:14.",
+    tags: ["NIFTY", "Options", "EMA 5 / 10"],
+    path: "/backtest/nifty-ema-crossover-retest-option-buying",
+  },  {
+    title: "nifty_ema_supertrend_option_buying",
+    description:
+      "NIFTY EMA 5 / EMA 10 crossover with retest, filtered by Supertrend (10, 1.5), on 1 / 3 / 5 / 15-min candles. A candle must close beyond EMA 10 and the EMA 5 retest must happen with the Supertrend on the trade's side → buy CE (bullish) or PE (bearish), ATM or ITM1–ITM4. " +
+      "Exit when the Supertrend turns against the trade. 1 lot, optional day MTM target and day MTM SL, square off 15:14.",
+    tags: ["NIFTY", "Options", "EMA 5 / 10 + Supertrend"],
+    path: "/backtest/nifty-ema-supertrend-option-buying",
+  },  {
+    title: "nifty_ema_supertrend_rejection_option_buying",
+    description:
+      "NIFTY EMA 5 / EMA 10 crossover with Supertrend (10, 1.5) confirmation, entered on a Supertrend LINE retest with rejection: a candle touches the line and closes on the trade's side of it → buy CE (bullish) or PE (bearish) at the next candle open, ATM or ITM1–ITM4. " +
+      "Exit at the close of the candle where the Supertrend turns against the trade. 1 lot, optional day MTM target and day MTM SL, square off 15:14.",
+    tags: ["NIFTY", "Options", "Supertrend rejection"],
+    path: "/backtest/nifty-ema-supertrend-rejection-option-buying",
   },
+
+
+
 
 ];
 
