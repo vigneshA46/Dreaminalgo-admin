@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Accordion,
   Alert,
@@ -38,6 +38,7 @@ import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import { exitColor, inr, pnlColor } from "./backtestUtils";
+import { DayCharts, LazyDayCharts } from "./DayCharts";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 
@@ -322,8 +323,11 @@ const LogLines = ({ logs }) => (
 // One day's stats, legs, P&L curve, trades and strategy panels (used by single-day and range views)
 // --------------------------------------------------
 
-const DayDetails = ({ day, result, config }) => (
+const DayDetails = ({ day, result, config, loadCharts, chartsOpen }) => (
   <Stack gap="lg" miw={0}>
+    {/* charts of the day: with a single-day result, or fetched when a day of a range run is opened */}
+    {day.charts ? <DayCharts charts={day.charts} /> : loadCharts && chartsOpen ? <LazyDayCharts date={day.date} load={loadCharts} /> : null}
+
     <SimpleGrid cols={{ base: 2, sm: 3, lg: 6 }} spacing="md">
       {config.stats(day, result).map((s) => (
         <Stat key={s.label} {...s} />
@@ -403,7 +407,8 @@ const dayResult = (day, result) => {
 };
 
 /** Overall numbers of a multi-day run + each day as a collapsible row headed by its day P&L. */
-const RangeResults = ({ result, config }) => {
+const RangeResults = ({ result, config, chartsLoader }) => {
+  const [openDay, setOpenDay] = useState(null);
   const sm = result.summary;
   const days = result.days || [];
   const tiles = sm
@@ -456,7 +461,7 @@ const RangeResults = ({ result, config }) => {
 
       <Stack gap="xs" miw={0}>
         <Text fw={600}>Days ({days.length})</Text>
-        <Accordion variant="separated" radius="md" chevronPosition="left">
+        <Accordion variant="separated" radius="md" chevronPosition="left" value={openDay} onChange={setOpenDay}>
           {days.map((d) =>
             d.status === "ok" ? (
               <Accordion.Item key={d.date} value={d.date}>
@@ -479,7 +484,7 @@ const RangeResults = ({ result, config }) => {
                   </Group>
                 </Accordion.Control>
                 <Accordion.Panel>
-                  <DayDetails day={d} result={dayResult(d, result)} config={config} />
+                  <DayDetails day={d} result={dayResult(d, result)} config={config} loadCharts={chartsLoader} chartsOpen={openDay === d.date} />
                 </Accordion.Panel>
               </Accordion.Item>
             ) : (
@@ -567,6 +572,7 @@ const BacktestRunPage = ({ config }) => {
   const [stopped, setStopped] = useState(false);
   const [stopping, setStopping] = useState(false);
   const jobRef = useRef(null);
+  const [lastJobId, setLastJobId] = useState(null); // charts of a range run's days are fetched with this id
   const aliveRef = useRef(true);
   const [options, setOptions] = useState(config.defaultOptions || null);
 
@@ -596,6 +602,7 @@ const BacktestRunPage = ({ config }) => {
     const started = await api.post(`${config.endpoint}/start`, body);
     const id = started.data.jobId;
     jobRef.current = id;
+    setLastJobId(id);
     let fails = 0;
     while (aliveRef.current) {
       await sleep(2000);
@@ -620,6 +627,8 @@ const BacktestRunPage = ({ config }) => {
     }
     jobRef.current = null;
   };
+
+  const loadCharts = useCallback(async (date) => (await api.get(`/api/backtest/jobs/${lastJobId}/charts/${date}`)).data.charts, [lastJobId]);
 
   const stopRun = async () => {
     const id = jobRef.current;
@@ -826,7 +835,7 @@ const BacktestRunPage = ({ config }) => {
         </Alert>
       )}
 
-      {ranAsRange && result && <RangeResults result={result} config={config} />}
+      {ranAsRange && result && <RangeResults result={result} config={config} chartsLoader={lastJobId ? loadCharts : undefined} />}
 
       {!ranAsRange && result && day?.status === "ok" && (
         <Stack gap="lg">
