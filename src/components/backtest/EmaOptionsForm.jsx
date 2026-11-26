@@ -14,3 +14,7 @@ export const EmaSupertrendOptionsForm = (props) => (
 export const EmaRejectionOptionsForm = (props) => (
   <HullOptionsForm {...props} strikes={EMA_STRIKES} timeframeHint="NIFTY candles EMA 5, EMA 10 and the Supertrend (10, 1.5) are drawn on." />
 );
+
+export const SupertrendEma1minOptionsForm = (props) => (
+  <HullOptionsForm {...props} showStrike={false} timeframeHint="NIFTY candles EMA 5, EMA 10 and the Supertrend (10, 1.5) are read on. The 09:16 reference line always uses the first 1-minute candle." />
+);

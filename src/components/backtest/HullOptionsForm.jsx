@@ -3,7 +3,7 @@ import { Group, NumberInput, Paper, SegmentedControl, Select, SimpleGrid, Stack,
 import { HULL_LIMITS, HULL_STRIKES, HULL_TIMEFRAMES } from "./hullOptions";
 
 /** Settings for nifty_hull_ma_option_buying: candle timeframe, strike, day MTM target and day MTM SL. */
-export const HullOptionsForm = ({ value, onChange, disabled, strikes = HULL_STRIKES, timeframeHint = "NIFTY candles the Hull MA 24 is drawn on." }) => {
+export const HullOptionsForm = ({ value, onChange, disabled, strikes = HULL_STRIKES, timeframeHint = "NIFTY candles the Hull MA 24 is drawn on.", showStrike = true }) => {
   const set = (key, patch) => onChange({ ...value, [key]: { ...value[key], ...patch } });
 
   return (
@@ -25,6 +25,7 @@ export const HullOptionsForm = ({ value, onChange, disabled, strikes = HULL_STRI
           </Text>
         </Stack>
 
+        {showStrike && (
         <Stack gap={4}>
           <Text size="sm" fw={500}>
             Strike
@@ -41,6 +42,7 @@ export const HullOptionsForm = ({ value, onChange, disabled, strikes = HULL_STRI
             From the signal candle's ATM. ITM: CE below, PE above.
           </Text>
         </Stack>
+        )}
 
         {HULL_LIMITS.map(([key, label, hint]) => (
           <Stack key={key} gap={4}>

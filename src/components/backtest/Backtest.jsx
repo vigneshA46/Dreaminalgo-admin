@@ -98,6 +98,13 @@ const strategies = [
       "Exit at the close of the candle where the Supertrend turns against the trade. 1 lot, optional day MTM target and day MTM SL, square off 15:14.",
     tags: ["NIFTY", "Options", "Supertrend rejection"],
     path: "/backtest/nifty-ema-supertrend-rejection-option-buying",
+  },  {
+    title: "nifty_supertrend_ema_buying_1min",
+    description:
+      "NIFTY option buying on EMA 5 / EMA 10 + Supertrend (10, 1.5) of the index, 1 / 3 / 5 / 15-min candles. First entry needs the close beyond the 09:16 line, later entries only Supertrend + EMA order. " +
+      "ITM4, lots 2, 4, 2, 4, half the lots booked at ₹3,000 trade profit, the rest rides till the Supertrend flips. Day MTM target / SL (each on or off), square off 15:14.",
+    tags: ["NIFTY", "Options", "EMA 5 / 10 + Supertrend"],
+    path: "/backtest/nifty-supertrend-ema-buying-1min",
   },
 
 
