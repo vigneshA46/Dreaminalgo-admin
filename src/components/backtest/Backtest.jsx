@@ -105,6 +105,13 @@ const strategies = [
       "ITM4, lots 2, 4, 2, 4, half the lots booked at ₹3,000 trade profit, the rest rides till the Supertrend flips. Day MTM target / SL (each on or off), square off 15:14.",
     tags: ["NIFTY", "Options", "EMA 5 / 10 + Supertrend"],
     path: "/backtest/nifty-supertrend-ema-buying-1min",
+  },  {
+    title: "nifty_sd_fib_buy_above_st",
+    description:
+      "NIFTY ATM CE + PE, each on its own chart. Levels from a one-year NIFTY daily volatility × the option's 09:15 open; only BUY ABOVE (0.2611 of the 1SD range) trades. " +
+      "Entry on a tick through BUY ABOVE + 8 or a 5-min close above it with the option's Supertrend (10, 3) bullish; exits only on Supertrend bearish (5-min close) or 15:14. 1 lot, re-entries, no day limits.",
+    tags: ["NIFTY", "Options", "Volatility + Fib", "Supertrend"],
+    path: "/backtest/nifty-sd-fib-buy-above-st",
   },
 
 

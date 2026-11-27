@@ -41,6 +41,7 @@ import BacktestEmaRetest from './components/backtest/BacktestEmaRetest';
 import BacktestEmaSupertrend from './components/backtest/BacktestEmaSupertrend';
 import BacktestEmaSupertrendRejection from './components/backtest/BacktestEmaSupertrendRejection';
 import BacktestSupertrendEma1min from './components/backtest/BacktestSupertrendEma1min';
+import BacktestSdFibBuyAboveSt from './components/backtest/BacktestSdFibBuyAboveSt';
 
 
 function App() {
@@ -96,6 +97,7 @@ function App() {
           <Route path='backtest/nifty-ema-supertrend-option-buying' element={<BacktestEmaSupertrend/>} />
           <Route path='backtest/nifty-ema-supertrend-rejection-option-buying' element={<BacktestEmaSupertrendRejection/>} />
           <Route path='backtest/nifty-supertrend-ema-buying-1min' element={<BacktestSupertrendEma1min/>} />
+          <Route path='backtest/nifty-sd-fib-buy-above-st' element={<BacktestSdFibBuyAboveSt/>} />
 
           
           
