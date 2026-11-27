@@ -10,3 +10,10 @@ export const ST1M_DEFAULT_OPTIONS = {
   dayTarget: { enabled: true, value: 10000 },
   daySl: { enabled: true, value: 10000 },
 };
+
+// pivot_cumulative_option_buying: timeframe + day MTM target / SL (SL on at 13,000 by default, target off), no strike input
+export const PIVOT_CUM_DEFAULT_OPTIONS = {
+  timeframe: 1,
+  dayTarget: { enabled: false, value: 5000 },
+  daySl: { enabled: true, value: 13000 },
+};

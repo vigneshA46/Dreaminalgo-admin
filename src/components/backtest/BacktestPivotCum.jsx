@@ -1,12 +1,19 @@
 import React from "react";
 import { Text } from "@mantine/core";
 import BacktestRunPage, { ExitCell, PriceTime, SideBadge } from "./BacktestRunPage";
+import { PivotCumOptionsForm } from "./EmaOptionsForm";
+import { PIVOT_CUM_DEFAULT_OPTIONS, emaOptionsValid } from "./emaOptions";
 import { inr, pnlColor } from "./backtestUtils";
 
 const config = {
   title: "pivot_cumulative_option_buying",
-  subtitle: "Runs one trading day on Dhan expired-options 1-minute data with your Dhan credentials",
+  subtitle:
+    "Pivot option buying with cumulative side targets on Dhan expired-options 1-minute data. Pick one date or a range (a range shows overall analysis with one dropdown per day). The candle timeframe sets the option candles the candle-close entry and stop loss read; day MTM target and SL can each be switched on or off (SL default −₹13,000).",
   endpoint: "/api/backtest/pivot_option_buying_cum",
+  dateRange: true,
+  defaultOptions: PIVOT_CUM_DEFAULT_OPTIONS,
+  OptionsForm: PivotCumOptionsForm,
+  optionsValid: emaOptionsValid,
 
   stats: (day, result) => [
     { label: "Day P&L", value: inr(day.dayPnl), color: pnlColor(day.dayPnl) },

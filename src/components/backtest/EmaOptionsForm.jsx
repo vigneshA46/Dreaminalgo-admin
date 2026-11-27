@@ -18,3 +18,7 @@ export const EmaRejectionOptionsForm = (props) => (
 export const SupertrendEma1minOptionsForm = (props) => (
   <HullOptionsForm {...props} showStrike={false} timeframeHint="NIFTY candles EMA 5, EMA 10 and the Supertrend (10, 1.5) are read on. The 09:16 reference line always uses the first 1-minute candle." />
 );
+
+export const PivotCumOptionsForm = (props) => (
+  <HullOptionsForm {...props} showStrike={false} timeframeHint="Option candles the candle-close entry and stop loss are read on. Pivot touches and tick rules still use 1-minute prices." />
+);
