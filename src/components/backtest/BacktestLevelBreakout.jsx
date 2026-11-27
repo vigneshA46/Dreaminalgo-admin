@@ -187,8 +187,9 @@ const config = {
   title: "nifty_option_level_breakout",
   subtitle:
     "ATM from NIFTY 09:15 close. range = prev-day (H − L) × 26.11%, buy above = open + range, T1–T11 every range. " +
-    "5-min close above buy above → buy 1 lot. The only exit is the Supertrend (10, 3) of the option's 5-min chart turning sell (square off 15:14).",
+    "5-min close above buy above → buy 1 lot. The only exit is the Supertrend (10, 3) of the option's 5-min chart turning sell (square off 15:14). Pick one date or a range; a range shows overall analysis with one dropdown per day.",
   endpoint: "/api/backtest/nifty_option_level_breakout",
+  dateRange: true,
 
   stats: (day, result) => [
     { label: "Day P&L", value: inr(day.dayPnl), color: pnlColor(day.dayPnl) },
